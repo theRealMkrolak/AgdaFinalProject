@@ -12,11 +12,11 @@ BUILTIN
 List
 
 Primes
--aInRangeB
--2isPrime
--0isNotPrime
--primeDec
--primeList
-  - 0 case
-  - inductive Step
--infinitePrimes
+\n-aInRangeB
+\n-2isPrime
+\n-0isNotPrime
+\n-primeDec
+\n-primeList
+\n  - 0 case
+\n  - inductive Step
+\n-infinitePrimes
