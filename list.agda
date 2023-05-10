@@ -1,4 +1,5 @@
 module List where
+
 open import BuiltIn
 
 data List (A : Set) : Set where
@@ -13,10 +14,9 @@ range : Nat -> List Nat
 range (suc n) = (:: (suc n) (range n))
 range 0 = nil
 
-
-listMap : {A B : Set} -> (A -> B) -> List A -> List B
+listMap : {A B : Set} → (A → B) → List A → List B
 listMap f (:: l ls) = (:: (f l) (listMap f ls))
 listMap _ _ = nil
 
-isIn : (E : Set) -> (e : E) -> (l : List E) -> Set
-isIn E e l = Σ (List E) (λ fr -> Σ (List E) (λ bk -> (l ≡ (concat fr (:: e bk)))))
+isIn : (E : Set) → (e : E) → (l : List E) → Set
+isIn E e l = Σ (List E) (λ fr → Σ (List E) (λ bk → (l ≡ (concat fr (:: e bk)))))
