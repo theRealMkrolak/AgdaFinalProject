@@ -1,0 +1,39 @@
+module BuiltIn where
+
+id : {E : Set} ->  E -> E
+id x = x
+
+const : {A B : Set} -> A -> B -> A  
+const x _ = x
+
+_$_ : {A B : Set} -> (A -> B) -> A -> B
+a $ b = a b
+
+_∘_ : {A B C : Set} -> (B -> C) -> (A -> B) -> (A -> C)
+f ∘ g = (λ x -> f (g x))
+
+data Σ (A : Set) (B : A -> Set) : Set where
+  _,_ : (x : A) -> B x -> Σ A B
+
+car : {A : Set} {B : A -> Set}  -> Σ A B -> A
+car (a , b) = a
+
+cdr : {A : Set} {B : A -> Set} -> (a : Σ A B) -> (B (car a))
+cdr (a , b) = b
+
+data _≡_ {A : Set} : A -> A -> Set where
+  refl : {x : A} -> x ≡ x
+
+cong : {A B : Set} {x y : A} -> (f : A -> B) -> x ≡ y -> f x ≡ f y
+cong f refl = refl
+
+data ⊥ : Set where
+
+absurd : {A : Set} -> ⊥ -> A
+absurd ()
+
+data Nat : Set where
+  zero : Nat
+  suc : Nat -> Nat
+
+{-# BUILTIN NATURAL Nat #-}
