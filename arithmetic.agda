@@ -9,8 +9,8 @@ _*_ : Nat -> Nat -> Nat
 zero * y = 0
 (suc x) * y = y + (x * y)
 
-data _≤_ : Nat -> Nat -> Set where
-  less : (n : Nat) -> (m : Nat) -> (Σ (Nat) (λ i -> ((i + n) ≡ m))) -> n ≤ m
+_≤_ : Nat -> Nat -> Set
+n ≤ m =  Σ (Nat) (λ i -> ((i + n) ≡ m))
 
 divides : Nat -> Nat -> Set
 divides a b = Σ Nat (λ n -> (n * a) ≡ b)
