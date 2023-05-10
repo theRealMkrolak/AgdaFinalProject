@@ -47,9 +47,9 @@ data Either (A B : Set) : Set where
   right : B -> Either A B 
 
 data Maybe (A : Set) : Set where
-  maybe : A -> Maybe A
-  just  : Maybe A
+  just : A -> Maybe A
+  nothing  : Maybe A
 
 maybeMap : {A B : Set} -> (A -> B) -> Maybe A -> Maybe B
-maybeMap f (maybe a) = maybe (f a)
-maybeMap _ just = just
+maybeMap f (just a) = just (f a)
+maybeMap _ nothing = nothing
