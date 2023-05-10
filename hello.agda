@@ -8,10 +8,10 @@ _$_ : {A B : Set} -> (A -> B) -> A -> B
 a $ b = a b
 
 _∘_ : {A B C : Set} -> (B -> C) -> (A -> B) -> (A -> C)
-f ∘ g = (λ x ->  f (g x))
+f ∘ g = (λ x -> f (g x))
 
 data Σ (A : Set) (B : A -> Set) : Set where
-  _,_ : (x : A)  -> B x -> Σ A B
+  _,_ : (x : A) -> B x -> Σ A B
 
 car : {A : Set} {B : A -> Set}  -> Σ A B -> A
 car (a , b) = a
