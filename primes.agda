@@ -8,7 +8,7 @@ aInRangeB : (a b : Nat) -> a ≤ b -> (isIn Nat a (range b))
 aInRangeB a b = {!!} 
 
 isPrime : Nat -> Set
-isPrime n = (x : Nat) -> (((x ≡ n -> ⊥) -> (divides x n -> ⊥)) -> ⊥) -> x ≡ 1
+isPrime n = (x : Nat) -> ((x ≡ n -> ⊥) × (divides x n -> ⊥)) -> x ≡ 1
 
 2isPrime : (isPrime 2)
 2isPrime = (λ x f ->  {!!})
