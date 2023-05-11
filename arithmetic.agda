@@ -1,37 +1,38 @@
 module Arithmetic where
 
 open import BuiltIn
+open import List
 
 
--- Naturals
-data Nat : Set where
-  zero : Nat
-  suc  : Nat → Nat
+a≤b&b=c=>a≤c : (a b c : Nat) -> ((a ≤ b) × (b ≡ c)) -> a ≤ c
+a≤b&b=c=>a≤c a b c (a≤b ^ b=c) = {!!}
 
-{-# BUILTIN NATURAL Nat #-}
+c=0=>a*c=0 : (a c : Nat) -> (c ≡ 0) -> (a * c ≡ 0)
+c=0=>a*c=0 a c c=0 = {!!}
 
-_+_ : Nat → Nat → Nat
-zero    + y = y
-(suc x) + y = suc (x + y)
+a≤b&b≤a=>a=b : (a b : Nat) -> ((a ≤ b) × (b ≤ a)) -> (a ≡ b)
+a≤b&b≤a=>a=b a b (a≤b ^ b≤a) = {!!}
 
-_*_ : Nat → Nat → Nat
-zero    * y = 0
-(suc x) * y = y + (x * y)
+c!=0&a=b=>a≤bc : (a b c : Nat) -> ((c ≡ 0 -> ⊥) × (a ≡ b)) -> (a ≤ (b * c))
+c!=0&a=b=>a≤bc a b c (c!=0 ^ a=b) = {!!}
 
-_≤_ : Nat → Nat → Set
-n ≤ m = Σ (Nat) (λ i → ((i + n) ≡ m))
-
-divides : Nat → Nat → Set
-divides a b = Σ Nat (λ n → (n * a) ≡ b)
+aInRangeB : (a b : Nat) -> a ≤ b -> (isIn Nat a (range b))
+aInRangeB a b a≤b = {!!}
 
 only≤Divides : (a b : Nat) -> ((a ≡ b -> ⊥) × (b ≤ a)) -> (divides a b) -> ⊥
-only≤Divides a b f a|b = {!!}
+only≤Divides a b (aNeqb ^ b≤a) a|b = let
+                                         a|b2 = (snd a|b)
+                                         c    = (car a|b2)
+                                         ac=b = (cdr a|b2)
+                                     in  aNeqb $ a≤b&b≤a=>a=b a b (a≤b&b=c=>a≤c a (a * c) b (c!=0&a=b=>a≤bc a a c ((λ c=0 -> (fst a|b) $ trans (sym $ cdr (snd a|b)) (c=0=>a*c=0 a c c=0)) ^ refl) ^ ac=b) ^ b≤a)
 
-0DoesNotDivide : (n : Nat) -> (divides 0 n) -> ⊥
-0DoesNotDivide n evidence = {!!}
+--works by showing that a=a => a≤ac because c!=0 
+--c!=0 is shown by assuming c and showing that b=0 which is false by def of division
+
 
 ≤EitherRefl : (a b : Nat) -> Either (a ≤ b) (b ≤ a)
 ≤EitherRefl = {!!}
+--define a helper function to do subtraction and keep count to find your value of m for the evidence of ≤
 
 {- only≤Divides : (a b : Nat) → (((a ≡ b → ⊥) → (b ≤ a → ⊥)) → ⊥) → (divides a b) → ⊥
 only≤Divides a b f a|b = f (λ nota=b → {!!}) -}

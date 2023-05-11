@@ -2,6 +2,7 @@ module List where
 
 open import BuiltIn
 
+
 data List (A : Set) : Set where
   nil : List A 
   ::  : A -> List A -> List A
@@ -20,3 +21,9 @@ listMap _ _ = nil
 
 isIn : (E : Set) → (e : E) → (l : List E) → Set
 isIn E e l = Σ (List E) (λ fr → Σ (List E) (λ bk → (l ≡ (concat fr (:: e bk)))))
+
+--aIsIn[b]a=b : {A : Set} -> (a b : A) -> (isIn A a (:: a nil)) -> (a ≡ b)
+--aIsIn[b]a=b a b isInAB = {!!}
+
+--aIsNotInNil : {A : Set} -> (a : A) -> (isIn A a nil) -> ⊥
+--aIsNotInNil = {!!}
