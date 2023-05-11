@@ -4,48 +4,61 @@ open import BuiltIn
 open import Arithmetic
 open import List
 
-aInRangeB : (a b : Nat) -> a ≤ b -> (isIn Nat a (range b))
-aInRangeB a b = {!!}
 
 isPrime : Nat -> Set
-isPrime n = (x : Nat) -> ((x ≡ n -> ⊥) × (divides x n -> ⊥)) -> x ≡ 1
+isPrime n = (x : Nat) -> ((x ≡ n -> ⊥) × (divides x n)) -> x ≡ 1
 
 2isPrime : (isPrime 2)
 2isPrime = (λ x t -> indEither
-                     (≤Prop1 2 x)
+                     (≤EitherRefl 2 x)
                      (λ 2≤x -> absurd (only≤Divides x 2  ((fst t) ^ 2≤x) (snd t)))
                      (λ x≤2 -> {!!}))
 -- either x is greater than 2 in which case we use only div otherwise
 
 
+0isPrime : (isPrime 0)
+0isPrime = (λ x xNeq0&x|0 -> absurd $ indEither
+                             (≤EitherRefl x 0)
+                             (λ x≤0 -> (fst xNeq0&x|0) (aIsIn[b]a=b x 0 (aInRangeB x 0 x≤0)))
+                             (λ 0≤x -> only≤Divides x 0 (fst xNeq0&x|0 ^  0≤x) (snd xNeq0&x|0)))
+                             
+
 --Use Naive Prime Check as template
 primeDec : (n : Nat) -> Either (isPrime n) (isPrime n -> ⊥)
-primeDec = {!!}
+primeDec 0 = (right (λ x ->  {!!}))
+primeDec n = {!!}
+
+--if x|n then 
+
+
+primeDecHelper : (n d : Nat) -> (l : List Nat)  -> (isIn Nat n l × divides d n) -> Either (isPrime n) (isPrime n -> ⊥)
+primeDecHelper = {!!} 
 
 --FIX
-fakeSub : (n : Nat) -> Nat -> Nat -> Maybe (isPrime n)
-fakeSub p (suc a) (suc b) = fakeSub p a b
-fakeSub p (suc a) 0 = just
-fakeSub p 0 (suc b) = just
-fakeSub p 0 0 = maybe (λ x f -> {!!})
+--fakeSub : (n : Nat) -> Nat -> Nat -> Maybe (isPrime n)
+--fakeSub p (suc a) (suc b) = fakeSub p a b
+--fakeSub p (suc a) 0 = nothing
+--fakeSub p 0 (suc b) = nothing
+--fakeSub p 0 0 = just (λ x f -> {!!})
 
-maybePrime : (n : Nat) -> Nat -> Nat -> Maybe (isPrime n)  -> Maybe (isPrime n)
-maybePrime p i j just = fakeSub p p (i * j)
-maybePrime p i j  = id
+--maybePrime : (n : Nat) -> Nat -> Nat -> Maybe (isPrime n)  -> Maybe (isPrime n)
+--maybePrime p i j just = fakeSub p p (i * j)
+--maybePrime p i j  = id
 
 --May need to be Maybe (isPrimeNat n)
-naivePrimeCheck : (n : Nat) -> Nat -> Nat -> Maybe (isPrime n)
-naivePrimeCheck p i (suc (suc j)) = maybePrime p i (suc j) $ naivePrimeCheck p i (suc j)
-naivePrimeCheck p (suc (suc i)) 1 = naivePrimeCheck p (suc i) p
-naivePrimeCheck p 1 1 = just
-naivePrimeCheck p _ _ = just
+--naivePrimeCheck : (n : Nat) -> Nat -> Nat -> Maybe (isPrime n)
+--naivePrimeCheck p i (suc (suc j)) = maybePrime p i (suc j) $ naivePrimeCheck p i (suc j)
+--naivePrimeCheck p (suc (suc i)) 1 = naivePrimeCheck p (suc i) p
+--naivePrimeCheck p 1 1 = just
+--naivePrimeCheck p _ _ = just
 
-maybe:: : {A : Set} -> Maybe A -> List A -> List A
-maybe:: (maybe a) l = (:: a l)
-maybe:: just = id
+--maybe:: : {A : Set} -> Maybe A -> List A -> List A
+--maybe:: (maybe a) l = (:: a l)
+--maybe:: just = id
 
 primeList : (n : Nat) -> Σ (List Nat) (λ l -> (x : Nat)  -> ((x ≤ n) × (isPrime x)) -> (isIn Nat x l))
-primeList 0 = (nil , (λ x x≤n&isPrimeX -> aInRangeB x 0 (fst x≤n&isPrimeX)  {!!}))
+--primeList 0 = (nil , (λ x x≤n&isPrimeX -> aInRangeB x 0 (fst x≤n&isPrimeX)  {!!}))
+primeList 0 = {!!}
 primeList (suc n) = let
                     primeListn = primeList n
                     n-1List  = car primeListn
