@@ -1,6 +1,7 @@
 module List where
 
 open import BuiltIn
+open import Arithmetic
 
 data List (A : Set) : Set where
   nil : List A 
