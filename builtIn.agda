@@ -8,21 +8,21 @@ absurd ()
 
 -- Products
 data _×_ (A B : Set) : Set where
- _^_ : A -> B -> A × B
+ _^_ : A → B → A × B
 
-fst : {A B : Set} -> A × B -> A
+fst : {A B : Set} → A × B → A
 fst  (a ^ b) = a
 
-snd : {A B : Set} -> A × B -> B
+snd : {A B : Set} → A × B → B
 snd (a ^ b) = b
 
-data Σ (A : Set) (B : A -> Set) : Set where
-  _,_ : (x : A)  -> B x -> Σ A B
+data Σ (A : Set) (B : A → Set) : Set where
+  _,_ : (x : A) → B x → Σ A B
 
-car : {A : Set} {B : A -> Set}  -> Σ A B -> A
+car : {A : Set} {B : A → Set} → Σ A B → A
 car (a , b) = a
 
-cdr : {A : Set} {B : A -> Set} -> (a : Σ A B) -> (B (car a))
+cdr : {A : Set} {B : A → Set} → (a : Σ A B) → (B (car a))
 cdr (a , b) = b
 
 -- Equivalence
@@ -67,11 +67,23 @@ data Either (A B : Set) : Set where
   left  : A → Either A B
   right : B → Either A B
 
-indEither : {A B C : Set} -> Either A B -> (A -> C) -> (B -> C) -> C
+indEither : {A B C : Set} → Either A B → (A → C) → (B → C) → C
 indEither (left a)  f _ = f a
 indEither (right b) _ g = g b
 
+-- Equivalence
+data _≡_ {A : Set} : A → A → Set where
+  refl : {x : A} → x ≡ x
+infix 4 _≡_
 
+sym : {A : Set} {x y : A} → x ≡ y → y ≡ x
+sym refl = refl
+
+trans : {A : Set} {x y z : A} → x ≡ y → y ≡ z → x ≡ z
+trans refl refl = refl
+
+cong : {A B : Set} {x y : A} → (f : A → B) → x ≡ y → f x ≡ f y
+cong f refl = refl
 
 -- Maybe
 data Maybe (A : Set) : Set where
