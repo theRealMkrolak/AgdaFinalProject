@@ -5,7 +5,7 @@ open import Arithmetic
 open import List
 
 
-isPrime : Nat -> Set
+isPrime : Nat → Set
 isPrime n = (x : Nat) -> ((x ≡ n -> ⊥) × (divides x n)) -> x ≡ 1
 
 2isPrime : (isPrime 2)
@@ -21,18 +21,23 @@ isPrime n = (x : Nat) -> ((x ≡ n -> ⊥) × (divides x n)) -> x ≡ 1
                              (≤EitherRefl x 0)
                              (λ x≤0 -> (fst xNeq0&x|0) (aIsIn[b]a=b x 0 (aInRangeB x 0 x≤0)))
                              (λ 0≤x -> only≤Divides x 0 (fst xNeq0&x|0 ^  0≤x) (snd xNeq0&x|0)))
-                             
+
+
+
+divDec : (p n : Nat) -> Either (divides p n) (divides p n -> ⊥)
+divDec p n = {!!}
+
+primeDecHelper : (p n r : Nat) -> (divides n p -> isIn Nat n (range r)) ->  Either (isPrime n) (isPrime n -> ⊥)
+primeDecHelper p n r n|p=>nInl = {!!}
 
 --Use Naive Prime Check as template
 primeDec : (n : Nat) -> Either (isPrime n) (isPrime n -> ⊥)
-primeDec 0 = (right (λ x ->  {!!}))
-primeDec n = {!!}
+primeDec 0 = (left 0isPrime)
+primeDec (suc n) = {!!} -- primeDecHelper (suc n) n ((1 , refl) : n ≤ (suc n)) 
 
 --if x|n then 
+ 
 
-
-primeDecHelper : (n d : Nat) -> (l : List Nat)  -> (isIn Nat n l × divides d n) -> Either (isPrime n) (isPrime n -> ⊥)
-primeDecHelper = {!!} 
 
 --FIX
 --fakeSub : (n : Nat) -> Nat -> Nat -> Maybe (isPrime n)
