@@ -8,7 +8,7 @@ open import List
 
 
 a≤b&b=c=>a≤c : (a b c : Nat) -> ((a ≤ b) × (b ≡ c)) -> a ≤ c
-a≤b&b=c=>a≤c a b c (a≤b ^ b=c) = {!!}
+a≤b&b=c=>a≤c a b .b (a≤b ^ refl) = a≤b
 
 c=0=>a*c=0 : (a c : Nat) -> (c ≡ 0) -> ((a * c) ≡ 0)
 c=0=>a*c=0 a c c=0 = {!!}
