@@ -38,6 +38,24 @@ trans refl refl = refl
 sym : {A : Set} {x y : A} → x ≡ y → y ≡ x
 sym refl = refl
 
+
+begin_ : {A : Set} → {x y : A} → x ≡ y → x ≡ y
+begin p = p
+
+_end : {A : Set} → (x : A) → x ≡ x
+x end = refl
+
+_=⟨_⟩_ : {A : Set} → (x : A) → {y z : A} → x ≡ y → y ≡ z → x ≡ z
+x =⟨ p ⟩ q = trans p q
+
+_=⟨⟩_ : {A : Set} → (x : A) → {y : A} → x ≡ y → x ≡ y
+x =⟨⟩ q = x =⟨ refl ⟩ q
+
+infix 1 begin_
+infix 3 _end
+infixr 2 _=⟨_⟩_
+infixr 2 _=⟨⟩_
+
 -- Naturals
 data Nat : Set where
   zero : Nat
@@ -57,7 +75,7 @@ _≤_ : Nat → Nat → Set
 n ≤ m = Σ (Nat) (λ i → ((i + n) ≡ m))
 
 divides : Nat → Nat → Set
-divides a b = (b ≡ 0 -> ⊥) × (Σ Nat (λ n →  (a * n) ≡ b))
+divides a b = (Σ Nat (λ n →  (a * n) ≡ b))
 
 -- Either
 data Either (A B : Set) : Set where
@@ -77,6 +95,17 @@ indMaybe : {A B : Set} → (A → B) → Maybe A → Maybe B
 indMaybe f (just a) = just (f a)
 indMaybe _ nothing  = nothing
 
+-- Fin
+data Fin(A : Nat -> Set): Nat -> Set where
+  end :  Fin A 0
+  body : {n : Nat} -> A n -> Fin A n -> Fin A (suc n)
+
+finMap : {A B : Nat -> Set} {n : Nat} -> ({m : Nat} -> A m -> B m ) -> Fin A n -> Fin B n
+finMap f (body An finN-1) = body (f An) (finMap f finN-1)
+finMap f end = end
+
+ 
+
 -- Miscellaneous
 id : {A : Set} → A → A
 id x = x
@@ -89,3 +118,4 @@ a $ b = a b
 
 _∘_ : {A B C : Set} → (B → C) → (A → B) → (A → C)
 f ∘ g = (λ x → f (g x))
+
