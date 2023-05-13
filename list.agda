@@ -23,7 +23,7 @@ listMap _ _ = nil
 isIn : (E : Set) → (e : E) → (l : List E) → Set
 isIn E e l = Σ (List E) (λ fr → Σ (List E) (λ bk → (l ≡ (concat fr (:: e bk)))))
 
-aIsInbL&a!=b=>aIsInL : {A : Set} -> (a b : A) -> (l : List A) -> (isIn A a (:: b l) × (a ≡ b -> ⊥)) -> (isIn A a l)
+aIsInbL&a!=b=>aIsInL : {A : Set} {l : List A} -> (a b : A)  -> (isIn A a (:: b l) × (a ≡ b -> ⊥)) -> (isIn A a l)
 aIsInbL&a!=b=>aIsInL = {!!}
 
 aIsIn[b]a=b : {A : Set} -> (a b : A) -> (isIn A a (:: b nil)) -> (a ≡ b)
