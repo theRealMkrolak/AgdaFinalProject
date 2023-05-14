@@ -8,13 +8,13 @@ absurd ()
 
 -- Products
 data _×_ (A B : Set) : Set where
- _^_ : A → B → A × B
+ _,_ : A → B → A × B
 
 fst : {A B : Set} → A × B → A
-fst  (a ^ b) = a
+fst  (a , b) = a
 
 snd : {A B : Set} → A × B → B
-snd (a ^ b) = b
+snd (a , b) = b
 
 data Σ (A : Set) (B : A → Set) : Set where
   _,_ : (x : A) → B x → Σ A B
@@ -77,7 +77,7 @@ _≤_ : Nat → Nat → Set
 n ≤ m = Σ (Nat) (λ i → ((i + n) ≡ m))
 
 divides : Nat → Nat → Set
-divides a b = (Σ Nat (λ n →  (a * n) ≡ b))
+divides a b = (Σ Nat (λ n → (a * n) ≡ b))
 
 -- Either
 data Either (A B : Set) : Set where
@@ -106,8 +106,6 @@ finMap : {A B : Nat -> Set} {n : Nat} -> ({m : Nat} -> A m -> B m ) -> Fin A n -
 finMap f (body An finN-1) = body (f An) (finMap f finN-1)
 finMap f end = end
 
- 
-
 -- Miscellaneous
 id : {A : Set} → A → A
 id x = x
@@ -120,4 +118,3 @@ a $ b = a b
 
 _∘_ : {A B C : Set} → (B → C) → (A → B) → (A → C)
 f ∘ g = (λ x → f (g x))
-

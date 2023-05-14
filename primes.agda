@@ -12,8 +12,8 @@ isPrime n = (x : Nat) -> ((x ≡ n -> ⊥) × (divides x n)) -> x ≡ 1
 
 --Very powerful function! Essentially given that something is in a range and evidence that for every item is not in that list returns false
 indIsNotInRange : (n m : Nat) -> (isIn Nat n (range m) × Fin (λ x -> n ≡ x -> ⊥) (suc m)) -> ⊥
-indIsNotInRange n (suc m) (nisInm ^ (body n!=m finm-1)) = indIsNotInRange n m (aIsInbL&a!=b=>aIsInL n (suc m)  (nisInm ^ n!=m) ^ finm-1) 
-indIsNotInRange n 0 (nIsIn0 ^ (body n!=0 end)) = n!=0 $ aIsIn[b]a=b n 0 nIsIn0
+indIsNotInRange n (suc m) (nisInm ^ (body n!=m finm-1)) = indIsNotInRange n m (notHeadThenInRest n (suc m)  (nisInm ^ n!=m) ^ finm-1) 
+indIsNotInRange n 0 (nIsIn0 ^ (body n!=0 end)) = n!=0 $ singletonIsItself n 0 nIsIn0
 
 natDec : (a b : Nat) -> Either (a ≡ b) (a ≡ b -> ⊥)
 natDec a b = {!!}
