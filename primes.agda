@@ -54,21 +54,12 @@ divDec : (n p : Nat) -> Either (divides n p) (divides n p -> ⊥)
 divDec n p = divDecHelper n p p 0 (refl) (natDec (n * 0) p ^ end)
 
 
--- Look at divDecHelper before attempting
-primeDecHelper : (p q m : Nat) -> ((m + q) ≡ p) -> (Either (divides m p) (divides m p -> ⊥) × Fin (λ x -> Either (x ≡ p) (divides x p -> ⊥)) m) -> Either (isPrime p) (isPrime p -> ⊥)
-primeDecHelper p (suc q) (suc (suc m)) m+q=p (left   m|p ^ finN-1) = right (λ pIsPrime -> (λ ()) $ pIsPrime (suc (suc m)) ({!!} ^ m|p))
-primeDecHelper p (suc q) m             m+q=p (right !m|p ^ finN-1) = {!!}
-primeDecHelper p (suc q) 0             m+q=p (left   m|p ^ finN-1) = {!!}
-primeDecHelper p (suc q) 1             m+q=p (left   m|p ^ finN-1) = {!!}
-primeDecHelper p 0       m             m+q=p (left   m|p ^ finN-1) = {!!}
-primeDecHelper p 0       m             m+q=p (right !m|p ^ finN-1) = right (λ pIsPrime -> !m|p (1 ,  trans (sym (*1= m)) (trans (+0= m) m+q=p)))
-
-
 
 0isNotPrime : isPrime 0 -> ⊥
 0isNotPrime isPrime0 = ((0!=Sn 0 ∘ cong sub1) ∘ sym) $ isPrime0 2 ((0!=Sn 1 ∘ sym)  ^ 0DividesAll 2)
 
---I think this has to do with the fact that nothing fits the criteria so false implies true. This is most likely due to our definition of primeness.
+
+--I think this has to do with the fact that nothing fits the criteria so false implies true. So this is most likely due to our definition of primeness.
 1isPrime : isPrime 1 
 1isPrime x (x!=1 ^ x|1) = absurd $ indEither (≤EitherRefl x 1)
                                                 (λ x≤1 -> indIsNotInRange x 1 (aInRangeB x 1 x≤1 ^ (body x!=1
@@ -80,19 +71,35 @@ primeDecHelper p 0       m             m+q=p (right !m|p ^ finN-1) = right (λ p
 
 
 
+
+primeDecHelper : (p q m : Nat) -> ((+2 m) + q) ≡ (+2 p)
+                               -> Either (divides (+2 m) (+2 p)) (divides (+2 m) (+2 p) -> ⊥) × Fin (λ x -> Either (+2 x ≡ +2 p) (divides (+2 x) (+2 p) -> ⊥)) m
+                               -> Either (Fin (λ x -> Either ((+2 x) ≡ (+2 p)) (divides (+2 x) (+2 p) -> ⊥))  (suc p)) (isPrime (+2 p) -> ⊥)
+primeDecHelper p (suc q) m             m+q=p (left   m|p ^ finN-1) = right (λ pIsPrime -> (λ ()) $ pIsPrime (+2 m) ({!!} ^ m|p))
+primeDecHelper p (suc q) m             m+q=p (right !m|p ^ finN-1) = primeDecHelper p q (suc m) (trans (suc+=+suc (+2 m) q) m+q=p) (divDec (suc (+2 m)) (+2 p) ^ body (right !m|p) finN-1)
+primeDecHelper p 0       m             m+q=p (left   m|p ^ finN-1) = left $ replace
+                                                                            (cong (sub1) (trans (+0= (+2 m)) m+q=p))
+                                                                            (λ y -> Fin (λ x → Either (+2 x ≡ +2 p) (divides (+2 x) (+2 p) → ⊥)) y)
+                                                                            (body (left $ (trans (+0= (+2 m)) m+q=p)) finN-1)
+primeDecHelper p 0       m             m+q=p (right !m|p ^ finN-1) = right (λ pIsPrime -> !m|p (1 , trans (sym (*1= (+2 m)))  (trans (+0= (+2 m)) m+q=p)))
+
+
+
+
+--Ok the strategy here is use only≤Divides for the case where p≤x and then for the other case use aInRageB to get the list of possible entries for a
+--Then because, from fin, that all but 0 and 1 are not possible we can then eliminate those. Thats as far as I got. Look at list for inspiration
 primeDec : (n : Nat) -> Either (isPrime n) (isPrime n -> ⊥)
 primeDec 0 = right 0isNotPrime
 primeDec 1 = left  1isPrime
-primeDec (suc (suc n)) = {!!} 
+primeDec (suc (suc n)) = let p = (+2 n) in indEither (primeDecHelper n n 0 refl (divDec (+2 0) (+2 n) ^ end))
+                                                   (λ fin -> left (λ x x!=p&x|p -> indEither (≤EitherRefl x p)
+                                                                                                          {!!}
+                                                                                                          {!!}))
+                                                   (right ∘ id)
                                                  
 
 primeList : (n : Nat) -> Σ (List Nat) (λ l -> (x : Nat)  -> ((x ≤ n) × (isPrime x)) -> (isIn Nat x l))
-primeList 0 = {!!}
-primeList (suc n) = let
-                    primeListn = primeList n
-                    n-1List  = car primeListn
-                    n-1Proof = cdr primeListn
-                    in {!!}
+primeList = {!!}
 
 
 infinitePrimes : (n : Nat) -> Σ Nat (λ x -> ((x ≤ n -> (isPrime x -> ⊥)) -> ⊥))

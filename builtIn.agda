@@ -38,6 +38,8 @@ trans refl refl = refl
 sym : {A : Set} {x y : A} → x ≡ y → y ≡ x
 sym refl = refl
 
+replace : {A : Set} {a b : A} -> (a ≡ b) -> (f : A -> Set) -> (f a) -> (f b)
+replace refl f fa = fa 
 
 begin_ : {A : Set} → {x y : A} → x ≡ y → x ≡ y
 begin p = p
