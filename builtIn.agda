@@ -89,6 +89,17 @@ indMaybe : {A B : Set} → (A → B) → Maybe A → Maybe B
 indMaybe f (just a) = just (f a)
 indMaybe _ nothing  = nothing
 
+-- Fin
+data Fin(A : Nat -> Set): Nat -> Set where
+  end :  Fin A 0
+  body : {n : Nat} -> A n -> Fin A n -> Fin A (suc n)
+
+finMap : {A B : Nat -> Set} {n : Nat} -> ({m : Nat} -> A m -> B m ) -> Fin A n -> Fin B n
+finMap f (body An finN-1) = body (f An) (finMap f finN-1)
+finMap f end = end
+
+ 
+
 -- Miscellaneous
 id : {A : Set} → A → A
 id x = x
@@ -101,3 +112,4 @@ a $ b = a b
 
 _∘_ : {A B C : Set} → (B → C) → (A → B) → (A → C)
 f ∘ g = (λ x → f (g x))
+
