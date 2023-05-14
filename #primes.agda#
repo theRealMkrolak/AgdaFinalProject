@@ -54,7 +54,9 @@ divDec : (n p : Nat) -> Either (divides n p) (divides n p -> ⊥)
 divDec n p = divDecHelper n p p 0 (refl) (natDec (n * 0) p ^ end)
 
 
--- Look at divDecHelper before attempting
+-- Look at divDecHelper before attempting.
+-- Probably better header.
+-- We may need a second helper above this one. This one will run and either gives us is not prime or provides a Fin with evidence that restricts possiblities to x=1 
 primeDecHelper : (p q m : Nat) -> ((m + q) ≡ p) -> (Either (divides m p) (divides m p -> ⊥) × Fin (λ x -> Either (x ≡ p) (divides x p -> ⊥)) m) -> Either (isPrime p) (isPrime p -> ⊥)
 primeDecHelper p (suc q) (suc (suc m)) m+q=p (left   m|p ^ finN-1) = right (λ pIsPrime -> (λ ()) $ pIsPrime (suc (suc m)) ({!!} ^ m|p))
 primeDecHelper p (suc q) m             m+q=p (right !m|p ^ finN-1) = {!!}
@@ -68,7 +70,8 @@ primeDecHelper p 0       m             m+q=p (right !m|p ^ finN-1) = right (λ p
 0isNotPrime : isPrime 0 -> ⊥
 0isNotPrime isPrime0 = ((0!=Sn 0 ∘ cong sub1) ∘ sym) $ isPrime0 2 ((0!=Sn 1 ∘ sym)  ^ 0DividesAll 2)
 
---I think this has to do with the fact that nothing fits the criteria so false implies true. This is most likely due to our definition of primeness.
+
+--I think this has to do with the fact that nothing fits the criteria so false implies true. So this is most likely due to our definition of primeness.
 1isPrime : isPrime 1 
 1isPrime x (x!=1 ^ x|1) = absurd $ indEither (≤EitherRefl x 1)
                                                 (λ x≤1 -> indIsNotInRange x 1 (aInRangeB x 1 x≤1 ^ (body x!=1

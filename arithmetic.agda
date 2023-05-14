@@ -6,19 +6,29 @@ open import BuiltIn
 open import List
 
 
+sub1 : Nat -> Nat
+sub1 0 = 0
+sub1 (suc n) = n
+
 +0= : (b : Nat) → b ≡ (b + 0)
 +0= 0       = refl 
 +0= (suc b) = cong suc (+0= b)
 
+*1= : (b : Nat) -> b ≡ (b * 1)
+*1= 0 = refl
+*1= (suc b) = cong suc (*1= b)
+
 n*0=0 : (n  : Nat) -> ((n * 0) ≡ 0)
-n*0=0  n = {!!}
+n*0=0  0 = refl
+n*0=0  (suc n) = cong (λ x -> 0 + x) $ n*0=0 n
 
 suc+=+suc : (a b : Nat) → (suc (a + b)) ≡ (a + (suc b))
 suc+=+suc 0 b       = refl 
 suc+=+suc (suc a) b = cong suc (suc+=+suc a b)
 
 comm+ : (a b : Nat) → (a + b) ≡ (b + a)
-comm+ = {!!}
+comm+ 0  = +0= 
+comm+ (suc a) b = trans (cong suc $ comm+ a b) $ suc+=+suc b a
 
 0!=Sn : (n : Nat) -> (0 ≡ (suc n) -> ⊥)
 0!=Sn n ()
@@ -30,7 +40,7 @@ comm* = {!!}
 0DividesAll a = (0 , n*0=0 a)
 
 only0Divides0 : (a : Nat) -> (divides 0 a) -> (a ≡ 0)
-only0Divides0 = {!!}
+only0Divides0 0|a = {!!}
 
 a≤b&b=c=>a≤c : (a b c : Nat) -> ((a ≤ b) × (b ≡ c)) -> a ≤ c
 a≤b&b=c=>a≤c a b .b (a≤b ^ refl) = a≤b
