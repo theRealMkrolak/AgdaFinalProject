@@ -23,7 +23,7 @@ natDec a b = {!!}
 divDecHelper : (n p q m : Nat) -> ((m + q) ≡ p) -> (Either ((n * m)  ≡ p) ((n * m) ≡ p -> ⊥) × Fin (λ x -> (n * x) ≡ p -> ⊥) m) -> Either (n div p) (n div p -> ⊥)
 divDecHelper n p       q m m+q=p  (left  n*m=p  , finNeq) = left (m , n*m=p)
 divDecHelper n p (suc q) m m+q=p  (right n*m!=p , finNeq) = divDecHelper n p q (suc m) (trans (suc+=+suc m q) m+q=p)  (natDec (n * (suc m)) p , body n*m!=p finNeq)  
-divDecHelper n p       0 m m+q=p  (right n*m!=p , finNeq) = right (λ n|p -> indEither (≤EitherRefl (car n|p) p)
+divDecHelper n p       0 m m+q=p  (right n*m!=p , finNeq) = right (λ n|p -> cases (≤EitherRefl (car n|p) p)
                                                                                       (λ c≤p -> indIsNotInRange (car n|p) m
                                                                                         (aInRangeB
                                                                                           (car n|p)
@@ -33,7 +33,7 @@ divDecHelper n p       0 m m+q=p  (right n*m!=p , finNeq) = right (λ n|p -> ind
                                                                                                                        finMap
                                                                                                                          (λ n*m!=p c=m -> n*m!=p $ trans (cong (λ x -> n * x) (sym c=m)) (cdr n|p))
                                                                                                                          (body n*m!=p finNeq)))
-                                                                                      (λ p≤c -> indEither (natDec (car n|p) p)
+                                                                                      (λ p≤c -> cases (natDec (car n|p) p)
                                                                                                           (λ p=c  -> n*m!=p $ trans (cong (λ x -> n * x) (trans (trans (+0= m) m+q=p) (sym p=c))) (cdr n|p))
                                                                                                           (λ c!=p -> only≤Divides
                                                                                                                      (car n|p)
@@ -61,7 +61,7 @@ divDec n p = divDecHelper n p p 0 (refl) (natDec (n * 0) p , end)
 
 --I think this has to do with the fact that nothing fits the criteria so false implies true. So this is most likely due to our definition of primeness.
 1isPrime : isPrime 1 
-1isPrime x (x!=1 , x|1) = absurd $ indEither (≤EitherRefl x 1)
+1isPrime x (x!=1 , x|1) = absurd $ cases (≤EitherRefl x 1)
                                                 (λ x≤1 -> indIsNotInRange x 1 (aInRangeB x 1 x≤1 , (body x!=1
                                                                                                          (body (λ x=0 -> (0!=Sn 0) (sym $ only0Divides0
                                                                                                                                           1
@@ -92,8 +92,8 @@ primeDecHelper p 0       m  m+q=p (left   m|p , finN-1) = left $ replace
 primeDec : (n : Nat) -> Either (isPrime n) (isPrime n -> ⊥)
 primeDec 0 = right 0isNotPrime
 primeDec 1 = left  1isPrime
-primeDec (suc (suc n)) = let p = (+2 n) in indEither (primeDecHelper n n 0 refl (divDec (+2 0) (+2 n) , end))
-                                                   (λ fin -> left (λ x x!=p&x|p -> indEither (≤EitherRefl x p)
+primeDec (suc (suc n)) = let p = (+2 n) in cases (primeDecHelper n n 0 refl (divDec (+2 0) (+2 n) , end))
+                                                   (λ fin -> left (λ x x!=p&x|p -> cases (≤EitherRefl x p)
                                                                                                           {!!}
                                                                                                           {!!}))
                                                    (right ∘ id)
