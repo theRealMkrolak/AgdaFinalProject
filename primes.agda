@@ -75,13 +75,14 @@ divDec n p = divDecHelper n p p 0 (refl) (natDec (n * 0) p ^ end)
 primeDecHelper : (p q m : Nat) -> ((+2 m) + q) ≡ (+2 p)
                                -> Either (divides (+2 m) (+2 p)) (divides (+2 m) (+2 p) -> ⊥) × Fin (λ x -> Either (+2 x ≡ +2 p) (divides (+2 x) (+2 p) -> ⊥)) m
                                -> Either (Fin (λ x -> Either ((+2 x) ≡ (+2 p)) (divides (+2 x) (+2 p) -> ⊥))  (suc p)) (isPrime (+2 p) -> ⊥)
-primeDecHelper p (suc q) m             m+q=p (left   m|p ^ finN-1) = right (λ pIsPrime -> (λ ()) $ pIsPrime (+2 m) ({!!} ^ m|p))
-primeDecHelper p (suc q) m             m+q=p (right !m|p ^ finN-1) = primeDecHelper p q (suc m) (trans (suc+=+suc (+2 m) q) m+q=p) (divDec (suc (+2 m)) (+2 p) ^ body (right !m|p) finN-1)
-primeDecHelper p 0       m             m+q=p (left   m|p ^ finN-1) = left $ replace
+primeDecHelper p (suc q) m  m+q=p (right !m|p ^ finN-1) = primeDecHelper p q (suc m) (trans (suc+=+suc (+2 m) q) m+q=p) (divDec (suc (+2 m)) (+2 p) ^ body (right !m|p) finN-1)
+primeDecHelper p (suc q) m  m+q=p (left   m|p ^ finN-1) = right (λ pIsPrime -> (λ ()) $ pIsPrime (+2 m) ({!!} ^ m|p))
+primeDecHelper p 0       m  m+q=p (right !m|p ^ finN-1) = right (λ pIsPrime -> !m|p (1 , trans (sym (*1= (+2 m)))  (trans (+0= (+2 m)) m+q=p)))
+primeDecHelper p 0       m  m+q=p (left   m|p ^ finN-1) = left $ replace
                                                                             (cong (sub1) (trans (+0= (+2 m)) m+q=p))
                                                                             (λ y -> Fin (λ x → Either (+2 x ≡ +2 p) (divides (+2 x) (+2 p) → ⊥)) y)
                                                                             (body (left $ (trans (+0= (+2 m)) m+q=p)) finN-1)
-primeDecHelper p 0       m             m+q=p (right !m|p ^ finN-1) = right (λ pIsPrime -> !m|p (1 , trans (sym (*1= (+2 m)))  (trans (+0= (+2 m)) m+q=p)))
+
 
 
 

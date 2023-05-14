@@ -45,10 +45,10 @@ only0Divides0 : (a : Nat) -> (divides 0 a) -> (a ≡ 0)
 only0Divides0 0|a = {!!}
 
 a≤b&b=c=>a≤c : (a b c : Nat) -> ((a ≤ b) × (b ≡ c)) -> a ≤ c
-a≤b&b=c=>a≤c a b c (a≤b ^ b=c) = {!!}
+a≤b&b=c=>a≤c a b c (a≤b ^ b=c) = replace b=c (λ x -> a ≤ x) a≤b
 
 c=0=>a*c=0 : (a c : Nat) -> (c ≡ 0) -> ((a * c) ≡ 0)
-c=0=>a*c=0 a c c=0 = {!!}
+c=0=>a*c=0 a c c=0 = trans (cong (λ x -> a * x) c=0) $ n*0=0 a
 
 a≤b&b≤a=>a=b : (a b : Nat) -> ((a ≤ b) × (b ≤ a)) -> (a ≡ b)
 a≤b&b≤a=>a=b a b (a≤b ^ b≤a) = {!!}
