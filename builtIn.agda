@@ -22,12 +22,13 @@ data Σ (A : Set) (B : A → Set) : Set where
 car : {A : Set} {B : A → Set} → Σ A B → A
 car (a , b) = a
 
-cdr : {A : Set} {B : A → Set} → (a : Σ A B) → (B (car a))
+cdr : {A : Set} {B : A → Set} → (a : Σ A B) → B (car a)
 cdr (a , b) = b
 
 -- Equivalence
 data _≡_ {A : Set} : A → A → Set where
   refl : {x : A} → x ≡ x
+infixr 4 _≡_
 
 cong : {A B : Set} {x y : A} → (f : A → B) → x ≡ y → f x ≡ f y
 cong f refl = refl
@@ -38,7 +39,7 @@ trans refl refl = refl
 sym : {A : Set} {x y : A} → x ≡ y → y ≡ x
 sym refl = refl
 
-replace : {A : Set} {a b : A} -> (a ≡ b) -> (f : A -> Set) -> (f a) -> (f b)
+replace : {A : Set} {a b : A} → a ≡ b → (f : A -> Set) → f a → f b
 replace refl f fa = fa 
 
 begin_ : {A : Set} → {x y : A} → x ≡ y → x ≡ y
@@ -73,20 +74,48 @@ _*_ : Nat → Nat → Nat
 zero    * y = 0
 (suc x) * y = y + (x * y)
 
-_≤_ : Nat → Nat → Set
-n ≤ m = Σ (Nat) (λ i → ((i + n) ≡ m))
+-- data _≤_ : Nat → Nat → Set where
+--  z≤n : (n : Nat) → zero ≤ n 
+--  s≤s : (m n : Nat) → m ≤ n → (suc m) ≤ (suc n)
 
-divides : Nat → Nat → Set
-divides a b = (Σ Nat (λ n → (a * n) ≡ b))
+-- TO BE REMOVED
+_≤_ : Nat → Nat → Set
+n ≤ m = Σ Nat (λ i → i + n ≡ m)
+
++Id : (x y : Nat) → suc (x + y) ≡ (suc x) + y
++Id x y = sym (
+  begin
+    (suc x) + y
+  =⟨⟩
+    suc (x + y)
+  end)
+
+-- difference : {a b : Nat} → a ≤ b → Σ Nat (λ k → a + k ≡ b)
+-- difference (z≤n n) = n , refl
+-- difference (s≤s m n pred≤) = k , eqProof
+--  where
+--    predDiff = difference pred≤
+--    k = car predDiff
+--    eqProof =
+--      begin
+--        (suc m + k)
+--      =⟨ +Id m k ⟩
+--        (suc m) + k
+--      =⟨ cong suc (cdr predDiff) ⟩
+--        suc n
+--      end
+
+_div_ : Nat → Nat → Set
+a div b = (Σ Nat (λ n → (a * n) ≡ b))
 
 -- Either
 data Either (A B : Set) : Set where
   left  : A → Either A B
   right : B → Either A B
 
-indEither : {A B C : Set} → Either A B → (A → C) → (B → C) → C
-indEither (left a)  f _ = f a
-indEither (right b) _ g = g b
+cases : {A B C : Set} → Either A B → (A → C) → (B → C) → C
+cases (left a)  f _ = f a
+cases (right b) _ g = g b
 
 -- Maybe
 data Maybe (A : Set) : Set where
@@ -98,11 +127,11 @@ indMaybe f (just a) = just (f a)
 indMaybe _ nothing  = nothing
 
 -- Fin
-data Fin(A : Nat -> Set): Nat -> Set where
-  end :  Fin A 0
-  body : {n : Nat} -> A n -> Fin A n -> Fin A (suc n)
+data Fin (A : Nat → Set): Nat → Set where
+  end  : Fin A 0
+  body : {n : Nat} → A n → Fin A n → Fin A (suc n)
 
-finMap : {A B : Nat -> Set} {n : Nat} -> ({m : Nat} -> A m -> B m ) -> Fin A n -> Fin B n
+finMap : {A B : Nat → Set} {n : Nat} → ({m : Nat} → A m → B m) → Fin A n → Fin B n
 finMap f (body An finN-1) = body (f An) (finMap f finN-1)
 finMap f end = end
 
@@ -117,4 +146,4 @@ _$_ : {A B : Set} → (A → B) → A → B
 a $ b = a b
 
 _∘_ : {A B C : Set} → (B → C) → (A → B) → (A → C)
-f ∘ g = (λ x → f (g x))
+f ∘ g = λ x → f (g x)

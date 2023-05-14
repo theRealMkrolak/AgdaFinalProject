@@ -37,10 +37,10 @@ comm+ (suc a) b = trans (cong suc $ comm+ a b) $ suc+=+suc b a
 comm* : (a b : Nat) → (a * b) ≡ (b * a)
 comm* = {!!}
 
-0DividesAll : (a : Nat) -> (divides a 0)
+0DividesAll : (a : Nat) -> a div 0
 0DividesAll a = (0 , n*0=0 a)
 
-only0Divides0 : (a : Nat) -> (divides 0 a) -> (a ≡ 0)
+only0Divides0 : (a : Nat) -> 0 div a -> (a ≡ 0)
 only0Divides0 0|a = {!!}
 
 a≤b&b=c=>a≤c : (a b c : Nat) -> ((a ≤ b) × (b ≡ c)) -> a ≤ c
@@ -59,7 +59,7 @@ c!=0&a=b=>a≤bc a b c (c!=0 , a=b) = {!!}
 aInRangeB : (a b : Nat) -> a ≤ b -> (isIn Nat a (range b))
 aInRangeB a b a≤b = {!!}
 
-only≤Divides : (a b : Nat) -> (b ≡ 0 -> ⊥) -> ((a ≡ b -> ⊥) × (b ≤ a)) -> (divides a b) -> ⊥
+only≤Divides : (a b : Nat) -> (b ≡ 0 -> ⊥) -> ((a ≡ b -> ⊥) × (b ≤ a)) -> a div b -> ⊥
 only≤Divides a b b!=0 (aNeqb , b≤a) a|b = let
                                          c    = (car a|b)
                                          ac=b = (cdr a|b)
