@@ -5,6 +5,8 @@ module Arithmetic where
 open import BuiltIn
 open import List
 
++2 : Nat -> Nat
++2 = suc ∘ suc 
 
 sub1 : Nat -> Nat
 sub1 0 = 0
