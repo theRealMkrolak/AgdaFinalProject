@@ -73,14 +73,15 @@ zero    + y = y
 _*_ : Nat → Nat → Nat
 zero    * y = 0
 (suc x) * y = y + (x * y)
+infixr 5 _*_ 
 
--- data _≤_ : Nat → Nat → Set where
---  z≤n : (n : Nat) → zero ≤ n 
---  s≤s : (m n : Nat) → m ≤ n → (suc m) ≤ (suc n)
+data _≤_ : Nat → Nat → Set where
+  z≤n : (n : Nat) → zero ≤ n 
+  s≤s : (m n : Nat) → m ≤ n → (suc m) ≤ (suc n)
 
--- TO BE REMOVED
-_≤_ : Nat → Nat → Set
-n ≤ m = Σ Nat (λ i → i + n ≡ m)
+-- Old definition
+-- _≤_ : Nat → Nat → Set
+-- n ≤ m = Σ Nat (λ i → i + n ≡ m)
 
 +Id : (x y : Nat) → suc (x + y) ≡ (suc x) + y
 +Id x y = sym (
@@ -90,20 +91,20 @@ n ≤ m = Σ Nat (λ i → i + n ≡ m)
     suc (x + y)
   end)
 
--- difference : {a b : Nat} → a ≤ b → Σ Nat (λ k → a + k ≡ b)
--- difference (z≤n n) = n , refl
--- difference (s≤s m n pred≤) = k , eqProof
---  where
---    predDiff = difference pred≤
---    k = car predDiff
---    eqProof =
---      begin
---        (suc m + k)
---      =⟨ +Id m k ⟩
---        (suc m) + k
---      =⟨ cong suc (cdr predDiff) ⟩
---        suc n
---      end
+difference : {a b : Nat} → a ≤ b → Σ Nat (λ k → a + k ≡ b)
+difference (z≤n n) = n , refl
+difference (s≤s m n pred≤) = k , eqProof
+ where
+   predDiff = difference pred≤
+   k = car predDiff
+   eqProof =
+     begin
+       (suc m + k)
+     =⟨ +Id m k ⟩
+       (suc m) + k
+     =⟨ cong suc (cdr predDiff) ⟩
+       suc n
+     end
 
 _div_ : Nat → Nat → Set
 a div b = (Σ Nat (λ n → (a * n) ≡ b))
