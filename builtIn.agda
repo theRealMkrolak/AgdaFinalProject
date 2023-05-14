@@ -25,7 +25,7 @@ car (a , b) = a
 cdr : {A : Set} {B : A → Set} → (a : Σ A B) → (B (car a))
 cdr (a , b) = b
 
--- Equivalence
+-- Proof Formatters and Equivalence
 data _≡_ {A : Set} : A → A → Set where
   refl : {x : A} → x ≡ x
 
@@ -37,6 +37,18 @@ trans refl refl = refl
 
 sym : {A : Set} {x y : A} → x ≡ y → y ≡ x
 sym refl = refl
+
+begin_ : {A : Set} -> {x y : A} -> x ≡ y -> x ≡ y
+begin p = p
+
+_end : {A : Set} -> (x : A) -> x ≡ x
+x end = refl
+
+_=⟨_⟩_ : {A : Set} -> (x : A) -> {y z : A} -> x ≡ y -> y ≡ z -> x ≡ z
+x =⟨ p ⟩ q = trans p q
+
+_=⟨⟩_ : {A : Set} -> (x : A) -> {y : A} -> x ≡ y -> x ≡ y
+x =⟨⟩ q = x =⟨ refl ⟩ q
 
 -- Naturals
 data Nat : Set where
@@ -57,7 +69,7 @@ _≤_ : Nat → Nat → Set
 n ≤ m = Σ (Nat) (λ i → ((i + n) ≡ m))
 
 divides : Nat → Nat → Set
-divides a b = (b ≡ 0 -> ⊥) × (Σ Nat (λ n →  (a * n) ≡ b))
+divides a b = (Σ Nat (λ n →  (a * n) ≡ b))
 
 -- Either
 data Either (A B : Set) : Set where
