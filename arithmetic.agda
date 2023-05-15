@@ -51,7 +51,14 @@ times0is0 : (a c : Nat) → c ≡ 0 → a * c ≡ 0
 times0is0 a c c=0 = trans (cong (λ x -> a * x) c=0) $ n*0=0 a
 
 ≤and≥then= : (a b : Nat) → (a ≤ b) × (b ≤ a) → a ≡ b
-≤and≥then= a b (a≤b , b≤a) = {!!}
+≤and≥then= 0 0 _ = refl
+≤and≥then= 0 (suc b) (0≤Sb , Sb≤0) = absurd $ 0!=Sn (b + k) (sym Sb+k=0)
+  where
+    diff = difference Sb≤0
+    k = car diff
+    Sb+k=0 = cdr diff
+≤and≥then= (suc a) 0 (Sa≤0 , 0≤Sa) = sym $ ≤and≥then= 0 (suc a) (0≤Sa , Sa≤0)
+≤and≥then= (suc a) (suc b) (s≤s a b a≤b , s≤s b a b≤a) = cong suc $ ≤and≥then= a b (a≤b , b≤a) 
 
 ≤Product : (a b c : Nat) → (c ≡ 0 → ⊥) × (a ≡ b) → a ≤ (b * c)
 ≤Product a b c (c!=0 , a=b) = {!!}
