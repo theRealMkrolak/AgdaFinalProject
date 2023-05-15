@@ -19,22 +19,22 @@ sub1 (suc n) = n
 *1= 0       = refl
 *1= (suc b) = cong suc (*1= b)
 
-n*0=0 : (n : Nat) → n * 0 ≡ 0
+n*0=0 : (n : Nat) → (n * 0) ≡ 0
 n*0=0  0       = refl
 n*0=0  (suc n) = cong (λ x → 0 + x) $ n*0=0 n
 
-suc+=+suc : (a b : Nat) → suc (a + b) ≡ a + (suc b)
+suc+=+suc : (a b : Nat) → suc (a + b) ≡ (a + (suc b))
 suc+=+suc 0       b = refl 
 suc+=+suc (suc a) b = cong suc (suc+=+suc a b)
 
-comm+ : (a b : Nat) → a + b ≡ b + a
+comm+ : (a b : Nat) → (a + b) ≡ (b + a)
 comm+ 0         = +0= 
 comm+ (suc a) b = trans (cong suc $ comm+ a b) $ suc+=+suc b a
 
 0!=Sn : (n : Nat) → 0 ≡ suc n → ⊥
 0!=Sn n ()
 
-comm* : (a b : Nat) → a * b ≡ b * a
+comm* : (a b : Nat) → (a * b) ≡ (b * a)
 comm* 0 b = sym $ n*0=0 b
 comm* (suc a) b = {!!}
 
@@ -60,7 +60,7 @@ times0is0 a c c=0 = trans (cong (λ x -> a * x) c=0) $ n*0=0 a
 ≤and≥then= (suc a) 0 (Sa≤0 , 0≤Sa) = sym $ ≤and≥then= 0 (suc a) (0≤Sa , Sa≤0)
 ≤and≥then= (suc a) (suc b) (s≤s a b a≤b , s≤s b a b≤a) = cong suc $ ≤and≥then= a b (a≤b , b≤a) 
 
-≤Product : (a b c : Nat) → (c ≡ 0 → ⊥) × (a ≡ b) → a ≤ (b * c)
+≤Product : (a b c : Nat) → (c ≡ 0 → ⊥) × (a ≡ b) → a ≤ (b * c)l
 ≤Product a b c (c!=0 , a=b) = {!!}
 
 aInRangeB : (a b : Nat) → a ≤ b → isIn Nat a (range b)
