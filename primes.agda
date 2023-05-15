@@ -4,26 +4,26 @@ open import BuiltIn
 open import Arithmetic
 open import List 
 
-
-
-
 isPrime : Nat → Set
-isPrime n = (x : Nat) -> ((x ≡ n -> ⊥) × (x div n)) -> x ≡ 1
+isPrime n = (x : Nat) → (x ≡ n → ⊥) × (x div n) → x ≡ 1
 
---Very powerful function! Essentially given that something is in a range and evidence that for every item is not in that list returns false
-indIsNotInRange : (n m : Nat) -> (isIn Nat n (range m) × Fin (λ x -> n ≡ x -> ⊥) (suc m)) -> ⊥
-indIsNotInRange n (suc m) (nisInm , (body n!=m finm-1)) = indIsNotInRange n m (notHeadThenInRest n (suc m)  (nisInm , n!=m) , finm-1) 
+-- Very powerful function! Essentially, given that something is in a range and evidence that for every item is not in that list returns false
+indIsNotInRange : (n m : Nat) → isIn Nat n (range m) × Fin (λ x → n ≡ x → ⊥) (suc m) → ⊥
+indIsNotInRange n (suc m) (nisInm , (body n!=m finm-1)) = indIsNotInRange n m (notHeadThenInRest n (suc m) (nisInm , n!=m) , finm-1) 
 indIsNotInRange n 0 (nIsIn0 , (body n!=0 end)) = n!=0 $ singletonIsItself n 0 nIsIn0
 
 natDec : (a b : Nat) -> Either (a ≡ b) (a ≡ b -> ⊥)
-natDec a b = {!!}
+natDec 0 0 = left refl
+natDec 0 (suc b) = right $ 0!=Sn b
+natDec (suc a) 0 = right $ Sn!=0 a
+natDec (suc a) (suc b) = cases (natDec a b) (left ∘ cong suc) (λ a!=b → right $ λ Sa=Sb → a!=b $ cong sub1 Sa=Sb)
 
---if n≤p then if n|p ∃x≤p x|p xn=p ->
---This is some of the worst and least readable code I have ever written in my life
-divDecHelper : (n p q m : Nat) -> ((m + q) ≡ p) -> (Either ((n * m)  ≡ p) ((n * m) ≡ p -> ⊥) × Fin (λ x -> (n * x) ≡ p -> ⊥) m) -> Either (n div p) (n div p -> ⊥)
-divDecHelper n p       q m m+q=p  (left  n*m=p  , finNeq) = left (m , n*m=p)
-divDecHelper n p (suc q) m m+q=p  (right n*m!=p , finNeq) = divDecHelper n p q (suc m) (trans (suc+=+suc m q) m+q=p)  (natDec (n * (suc m)) p , body n*m!=p finNeq)  
-divDecHelper n p       0 m m+q=p  (right n*m!=p , finNeq) = {!!}
+-- If n ≤ p and n | p, there exists x ≤ p and x | p such that xn = p
+-- This is some of the worst and least readable code I have ever written in my life
+divDecHelper : (n p q m : Nat) → m + q ≡ p → Either (n * m ≡ p) (n * m ≡ p → ⊥) × Fin (λ x → n * x ≡ p → ⊥) m → Either (n div p) (n div p → ⊥)
+divDecHelper n p q       m m+q=p (left  n*m=p  , finNeq) = left (m , n*m=p)
+divDecHelper n p (suc q) m m+q=p (right n*m!=p , finNeq) = divDecHelper n p q (suc m) (trans (suc+=+suc m q) m+q=p) (natDec (n * (suc m)) p , body n*m!=p finNeq)  
+divDecHelper n p 0       m m+q=p (right n*m!=p , finNeq) = {!!}
 
 {- sorry max, i could not deal
                                                             right (λ n|p -> cases (≤EitherRefl (car n|p) p)
@@ -53,8 +53,8 @@ divDecHelper n p       0 m m+q=p  (right n*m!=p , finNeq) = {!!}
                                                                                                                      (n , trans (comm* (car n|p) n) (cdr n|p))))) -}
 
 
-divDec : (n p : Nat) -> Either (n div p) (n div p -> ⊥)
-divDec n p = divDecHelper n p p 0 (refl) (natDec (n * 0) p , end)
+divDec : (n p : Nat) → Either (n div p) (n div p → ⊥)
+divDec n p = divDecHelper n p p 0 refl (natDec (n * 0) p , end)
 
 
 

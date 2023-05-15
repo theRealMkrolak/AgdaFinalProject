@@ -31,8 +31,11 @@ comm+ : (a b : Nat) → a + b ≡ b + a
 comm+ 0         = +0= 
 comm+ (suc a) b = trans (cong suc $ comm+ a b) $ suc+=+suc b a
 
-0!=Sn : (n : Nat) → 0 ≡ (suc n) → ⊥
+0!=Sn : (n : Nat) → 0 ≡ suc n → ⊥
 0!=Sn n ()
+
+Sn!=0 : (n : Nat) → suc n ≡ 0 → ⊥
+Sn!=0 n ()
 
 comm* : (a b : Nat) → a * b ≡ b * a
 comm* 0 b = sym $ n*0=0 b
