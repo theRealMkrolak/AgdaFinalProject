@@ -78,11 +78,7 @@ infixr 5 _*_
 data _≤_ : Nat → Nat → Set where
   z≤n : (n : Nat) → zero ≤ n 
   s≤s : (m n : Nat) → m ≤ n → (suc m) ≤ (suc n)
-
--- Old definition
--- _≤_ : Nat → Nat → Set
--- n ≤ m = Σ Nat (λ i → i + n ≡ m)
-
+  
 +Id : (x y : Nat) → suc (x + y) ≡ (suc x) + y
 +Id x y = sym (
   begin
@@ -148,3 +144,4 @@ a $ b = a b
 
 _∘_ : {A B C : Set} → (B → C) → (A → B) → (A → C)
 f ∘ g = λ x → f (g x)
+infixr 8 _∘_

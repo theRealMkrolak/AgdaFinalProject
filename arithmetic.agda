@@ -41,11 +41,11 @@ comm* : (a b : Nat) → a * b ≡ b * a
 comm* 0 b = sym $ n*0=0 b
 comm* (suc a) b = {!!}
 
-0DividesAll : (a : Nat) → a div 0
-0DividesAll a = 0 , n*0=0 a
+AllDivide0 : (a : Nat) → a div 0
+AllDivide0 a = 0 , n*0=0 a
 
-only0Divides0 : {a : Nat} → 0 div a → a ≡ 0
-only0Divides0 0|a = sym (cdr 0|a)
+only0Divides0 : (a : Nat) → 0 div a → a ≡ 0
+only0Divides0 a 0|a = sym (cdr 0|a)
 
 eqAlso≤ : (a b c : Nat) → (a ≤ b) × (b ≡ c) → a ≤ c
 eqAlso≤ a b c (a≤b , b=c) = replace b=c (λ x → a ≤ x) a≤b
