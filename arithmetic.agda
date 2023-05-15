@@ -37,9 +37,33 @@ comm+ (suc a) b = trans (cong suc $ comm+ a b) $ suc+=+suc b a
 Sn!=0 : (n : Nat) → suc n ≡ 0 → ⊥
 Sn!=0 n ()
 
+*+=*suc : (a b : Nat) -> (a + (a * b)) ≡ (a * (suc b))
+*+=*suc 0 b = refl
+*+=*suc (suc a) b = 
+  begin
+    {!!}
+
 comm* : (a b : Nat) → (a * b) ≡ (b * a)
-comm* 0 b = sym $ n*0=0 b
-comm* (suc a) b = {!!}
+comm* 0 b = 
+  begin
+    0 * b
+  =⟨⟩
+    0
+  =⟨ sym (n*0=0 b) ⟩
+    (b * 0)
+  =⟨⟩
+    refl
+comm* (suc a) b = 
+  begin
+    suc a * b
+  =⟨⟩
+    (b + (a * b))
+  =⟨ cong (λ x -> b + x) (comm* a b) ⟩
+    (b + (b * a))
+  =⟨ *+=*suc b a ⟩
+    b * suc a
+  =⟨⟩
+    refl
 
 AllDivide0 : (a : Nat) → a div 0
 AllDivide0 a = 0 , n*0=0 a

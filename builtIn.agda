@@ -9,6 +9,8 @@ absurd ()
 -- Products
 data _×_ (A B : Set) : Set where
  _,_ : A → B → A × B
+ 
+infixr 4 _,_
 
 fst : {A B : Set} → A × B → A
 fst  (a , b) = a
