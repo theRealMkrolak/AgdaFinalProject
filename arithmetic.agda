@@ -19,15 +19,15 @@ sub1 (suc n) = n
 *1= 0       = refl
 *1= (suc b) = cong suc (*1= b)
 
-n*0=0 : (n : Nat) → n * 0 ≡ 0
+n*0=0 : (n : Nat) → (n * 0) ≡ 0
 n*0=0  0       = refl
 n*0=0  (suc n) = cong (λ x → 0 + x) $ n*0=0 n
 
-suc+=+suc : (a b : Nat) → suc (a + b) ≡ a + (suc b)
+suc+=+suc : (a b : Nat) → suc (a + b) ≡ (a + (suc b))
 suc+=+suc 0       b = refl 
 suc+=+suc (suc a) b = cong suc (suc+=+suc a b)
 
-comm+ : (a b : Nat) → a + b ≡ b + a
+comm+ : (a b : Nat) → (a + b) ≡ (b + a)
 comm+ 0         = +0= 
 comm+ (suc a) b = trans (cong suc $ comm+ a b) $ suc+=+suc b a
 
@@ -37,7 +37,7 @@ comm+ (suc a) b = trans (cong suc $ comm+ a b) $ suc+=+suc b a
 Sn!=0 : (n : Nat) → suc n ≡ 0 → ⊥
 Sn!=0 n ()
 
-comm* : (a b : Nat) → a * b ≡ b * a
+comm* : (a b : Nat) → (a * b) ≡ (b * a)
 comm* 0 b = sym $ n*0=0 b
 comm* (suc a) b = {!!}
 
