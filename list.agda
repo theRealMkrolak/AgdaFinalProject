@@ -43,7 +43,11 @@ aIsNotInNil a aIsInNil =  (nil!=concatLa::J (car aIsInNil) a (car $ cdr aIsInNil
 
 
 aIsIn[b]a=b : {A : Set} -> (a b : A) -> (isIn A a (:: b nil)) -> (a ≡ b)
-aIsIn[b]a=b a b isInAB = {!!}
+aIsIn[b]a=b a b (x , (y , prf)) = 
+  begin
+    {!a
+  =⟨⟩
+    ?!}
 
 aIsInbL&a!=b=>aIsInL : {A : Set} {l : List A} -> (a b : A)  -> (isIn A a (:: b l) × (a ≡ b -> ⊥)) -> (isIn A a l)
 aIsInbL&a!=b=>aIsInL a b (aIn::bl ^ aNeqb) = {!!}

@@ -38,6 +38,9 @@ trans refl refl = refl
 sym : {A : Set} {x y : A} → x ≡ y → y ≡ x
 sym refl = refl
 
+replace : {A : Set} {a b : A} -> (a ≡ b) -> (f : A -> Set) -> (f a) -> (f b)
+replace refl f fa = fa 
+
 begin_ : {A : Set} -> {x y : A} -> x ≡ y -> x ≡ y
 begin p = p
 
@@ -49,6 +52,11 @@ x =⟨ p ⟩ q = trans p q
 
 _=⟨⟩_ : {A : Set} -> (x : A) -> {y : A} -> x ≡ y -> x ≡ y
 x =⟨⟩ q = x =⟨ refl ⟩ q
+
+infix 1 begin_
+infix 3 _end
+infixr 2 _=⟨_⟩_
+infixr 2 _=⟨⟩_
 
 -- Naturals
 data Nat : Set where
