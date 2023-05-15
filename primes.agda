@@ -50,9 +50,9 @@ divDecHelper n p       0 m m+q=p  (right n*m!=p ^ finNeq) = right (λ n|p -> ind
                                                                                                                      (n , trans (comm* (car n|p) n) (cdr n|p)))))
 
 
+
 divDec : (n p : Nat) -> Either (divides n p) (divides n p -> ⊥)
 divDec n p = divDecHelper n p p 0 (refl) (natDec (n * 0) p ^ end)
-
 
 
 0isNotPrime : isPrime 0 -> ⊥
@@ -79,12 +79,9 @@ primeDecHelper p (suc q) m  m+q=p (right !m|p ^ finN-1) = primeDecHelper p q (su
 primeDecHelper p (suc q) m  m+q=p (left   m|p ^ finN-1) = right (λ pIsPrime -> (λ ()) $ pIsPrime (+2 m) ({!!} ^ m|p))
 primeDecHelper p 0       m  m+q=p (right !m|p ^ finN-1) = right (λ pIsPrime -> !m|p (1 , trans (sym (*1= (+2 m)))  (trans (+0= (+2 m)) m+q=p)))
 primeDecHelper p 0       m  m+q=p (left   m|p ^ finN-1) = left $ replace
-                                                                            (cong (sub1) (trans (+0= (+2 m)) m+q=p))
-                                                                            (λ y -> Fin (λ x → Either (+2 x ≡ +2 p) (divides (+2 x) (+2 p) → ⊥)) y)
-                                                                            (body (left $ (trans (+0= (+2 m)) m+q=p)) finN-1)
-
-
-
+                                                                 (cong (sub1) (trans (+0= (+2 m)) m+q=p))
+                                                                 (λ y -> Fin (λ x → Either (+2 x ≡ +2 p) (divides (+2 x) (+2 p) → ⊥)) y)
+                                                                 (body (left $ (trans (+0= (+2 m)) m+q=p)) finN-1)
 
 
 --Ok the strategy here is use only≤Divides for the case where p≤x and then for the other case use aInRageB to get the list of possible entries for a
@@ -93,15 +90,15 @@ primeDec : (n : Nat) -> Either (isPrime n) (isPrime n -> ⊥)
 primeDec 0 = right 0isNotPrime
 primeDec 1 = left  1isPrime
 primeDec (suc (suc n)) = let p = (+2 n) in indEither (primeDecHelper n n 0 refl (divDec (+2 0) (+2 n) ^ end))
-                                                   (λ fin -> left (λ x x!=p&x|p -> indEither (≤EitherRefl x p)
+                                                     (λ fin -> left (λ x x!=p&x|p -> indEither (≤EitherRefl x p)
                                                                                                           {!!}
                                                                                                           {!!}))
-                                                   (right ∘ id)
+                                                     (right ∘ id)
                                                  
 
 primeList : (n : Nat) -> Σ (List Nat) (λ l -> (x : Nat)  -> ((x ≤ n) × (isPrime x)) -> (isIn Nat x l))
-primeList = {!!}
+primeList n = {!!}
 
 
-infinitePrimes : (n : Nat) -> Σ Nat (λ x -> ((x ≤ n -> (isPrime x -> ⊥)) -> ⊥))
+infinitePrimes : (n : Nat) -> Σ Nat (λ x -> (n ≤ x) × isPrime n)
 infinitePrimes n = {!!}

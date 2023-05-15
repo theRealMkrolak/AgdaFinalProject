@@ -56,7 +56,7 @@ a≤b&b≤a=>a=b a b (a≤b ^ b≤a) = {!!}
 c!=0&a=b=>a≤bc : (a b c : Nat) -> ((c ≡ 0 -> ⊥) × (a ≡ b)) -> (a ≤ (b * c))
 c!=0&a=b=>a≤bc a b c (c!=0 ^ a=b) = {!!}
 
-aInRangeB : (a b : Nat) -> a ≤ b -> (isIn Nat a (range b))
+aInRangeB : (a b : Nat) -> a ≤ b -> isIn Nat a (range b)
 aInRangeB a b a≤b = {!!}
 
 only≤Divides : (a b : Nat) -> (b ≡ 0 -> ⊥) -> ((a ≡ b -> ⊥) × (b ≤ a)) -> (divides a b) -> ⊥
