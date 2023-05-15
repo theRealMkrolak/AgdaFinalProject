@@ -37,11 +37,39 @@ comm+ (suc a) b = trans (cong suc $ comm+ a b) $ suc+=+suc b a
 Sn!=0 : (n : Nat) → suc n ≡ 0 → ⊥
 Sn!=0 n ()
 
+dist+ : (a b c : Nat) -> (a + (b + c)) ≡ ((a + b) + c)
+dist+ a b = {!!}
+
+*+=*suc-flip : (a b : Nat) -> (b + (a * b)) ≡ ((suc a) * b)
+*+=*suc-flip a b = {!!}
+
 *+=*suc : (a b : Nat) -> (a + (a * b)) ≡ (a * (suc b))
 *+=*suc 0 b = refl
 *+=*suc (suc a) b = 
   begin
-    {!!}
+    suc a + (suc a * b)
+  =⟨⟩
+    suc a + (b + (a * b))
+  =⟨ (dist+ (suc a)  b (a * b)) ⟩
+    ((suc a + b) + (a * b))
+  =⟨ (cong (λ x -> x + (a * b)) (comm+ (suc a) b)) ⟩
+    ((b + suc a) + (a * b))
+  =⟨ (cong (λ x -> x + (a * b)) (sym (suc+=+suc b a))) ⟩
+    (suc (b + a) + (a * b))
+  =⟨ (cong (λ x -> (suc x) + (a * b)) (comm+ b a)) ⟩
+    (suc (a + b) + (a * b))
+  =⟨ (cong (λ x -> x + (a * b)) (suc+=+suc a b)) ⟩
+    ((a + suc b) + (a * b))
+  =⟨ (cong (λ x -> x + (a * b)) (comm+ a (suc b))) ⟩
+    (((suc b) + a) + (a * b))
+  =⟨ (sym (dist+ (suc b) a (a * b))) ⟩
+    (suc b + (a + (a * b)))
+  =⟨ (cong (λ x -> (suc b) + x) (*+=*suc a b)) ⟩
+    (suc b + (a * suc b))
+  =⟨⟩
+    ((suc a) * (suc b))
+  =⟨⟩
+    refl
 
 comm* : (a b : Nat) → (a * b) ≡ (b * a)
 comm* 0 b = 
@@ -88,7 +116,8 @@ times0is0 a c c=0 = trans (cong (λ x -> a * x) c=0) $ n*0=0 a
 ≤and≥then= (suc a) (suc b) (s≤s a b a≤b , s≤s b a b≤a) = cong suc $ ≤and≥then= a b (a≤b , b≤a) 
 
 ≤Product : (a b c : Nat) → (c ≡ 0 → ⊥) × (a ≡ b) → a ≤ (b * c)
-≤Product a b c (c!=0 , a=b) = {!!}
+≤Product 0 b c (c!=0 , a=b) = z≤n (b * c)
+≤Product (suc a) b c (c!=0 , suca=b) = {!!}
 
 aInRangeB : (a b : Nat) → a ≤ b → isIn Nat a (range b)
 aInRangeB a b a≤b = {!!}
