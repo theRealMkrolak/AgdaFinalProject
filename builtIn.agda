@@ -40,7 +40,7 @@ sym : {A : Set} {x y : A} → x ≡ y → y ≡ x
 sym refl = refl
 
 replace : {A : Set} {a b : A} → a ≡ b → (f : A -> Set) → f a → f b
-replace refl f fa = fa 
+replace refl f fa = fa
 
 begin_ : {A : Set} → {x y : A} → x ≡ y → x ≡ y
 begin p = p
@@ -70,10 +70,15 @@ _+_ : Nat → Nat → Nat
 zero    + y = y
 (suc x) + y = suc (x + y)
 
+_-_ : Nat → Nat → Nat
+0 - y = y
+x - 0 = x
+(suc x) - (suc y) = x - y
+
 _*_ : Nat → Nat → Nat
 zero    * y = 0
 (suc x) * y = y + (x * y)
-infixr 5 _*_ 
+infixr 5 _*_
 
 data _≤_ : Nat → Nat → Set where
   z≤n : (n : Nat) → zero ≤ n 
@@ -105,6 +110,12 @@ difference (s≤s m n pred≤) = k , eqProof
 _div_ : Nat → Nat → Set
 a div b = (Σ Nat (λ n → (a * n) ≡ b))
 
+0!=Sn : (n : Nat) → 0 ≡ suc n → ⊥
+0!=Sn n ()
+
+Sn!=0 : (n : Nat) → suc n ≡ 0 → ⊥
+Sn!=0 n ()
+
 -- Either
 data Either (A B : Set) : Set where
   left  : A → Either A B
@@ -131,6 +142,11 @@ data Fin (A : Nat → Set): Nat → Set where
 finMap : {A B : Nat → Set} {n : Nat} → ({m : Nat} → A m → B m) → Fin A n → Fin B n
 finMap f (body An finN-1) = body (f An) (finMap f finN-1)
 finMap f end = end
+
+-- Decideablity
+
+dec= : (A : Set) -> Set
+dec= A = (a b : A) -> Either (a ≡  b) (a ≡ b -> ⊥)
 
 -- Miscellaneous
 id : {A : Set} → A → A
