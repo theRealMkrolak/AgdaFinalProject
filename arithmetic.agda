@@ -47,10 +47,7 @@ dist+ (suc a) b c =
   =⟨ cong suc (dist+ a b c) ⟩
     (suc ((a + b) + c))
   =⟨⟩
-    {!refl!}
-
-*+=*suc-flip : (a b : Nat) -> (b + (a * b)) ≡ ((suc a) * b)
-*+=*suc-flip a b = {!!}
+    refl
 
 *+=*suc : (a b : Nat) -> (a + (a * b)) ≡ (a * (suc b))
 *+=*suc 0 b = refl
