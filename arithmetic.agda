@@ -12,7 +12,7 @@ sub1 0 = 0
 sub1 (suc n) = n
 
 +0= : (b : Nat) → b ≡ (b + 0)
-+0= 0       = refl 
++0= 0       = refl
 +0= (suc b) = cong suc (+0= b)
 
 *1= : (b : Nat) → b ≡ (b * 1)
@@ -30,12 +30,6 @@ suc+=+suc (suc a) b = cong suc (suc+=+suc a b)
 comm+ : (a b : Nat) → (a + b) ≡ (b + a)
 comm+ 0         = +0= 
 comm+ (suc a) b = trans (cong suc $ comm+ a b) $ suc+=+suc b a
-
-0!=Sn : (n : Nat) → 0 ≡ suc n → ⊥
-0!=Sn n ()
-
-Sn!=0 : (n : Nat) → suc n ≡ 0 → ⊥
-Sn!=0 n ()
 
 dist+ : (a b c : Nat) -> (a + (b + c)) ≡ ((a + b) + c)
 dist+ 0 b c = refl
@@ -111,6 +105,7 @@ eqAlso≤ a b c (a≤b , b=c) = replace b=c (λ x → a ≤ x) a≤b
 times0is0 : (a c : Nat) → c ≡ 0 → a * c ≡ 0
 times0is0 a c c=0 = trans (cong (λ x -> a * x) c=0) $ n*0=0 a
 
+
 ≤and≥then= : (a b : Nat) → (a ≤ b) × (b ≤ a) → a ≡ b
 ≤and≥then= 0 0 _ = refl
 ≤and≥then= 0 (suc b) (0≤Sb , Sb≤0) = absurd $ 0!=Sn (b + k) (sym Sb+k=0)
@@ -119,7 +114,7 @@ times0is0 a c c=0 = trans (cong (λ x -> a * x) c=0) $ n*0=0 a
     k = car diff
     Sb+k=0 = cdr diff
 ≤and≥then= (suc a) 0 (Sa≤0 , 0≤Sa) = sym $ ≤and≥then= 0 (suc a) (0≤Sa , Sa≤0)
-≤and≥then= (suc a) (suc b) (s≤s a b a≤b , s≤s b a b≤a) = cong suc $ ≤and≥then= a b (a≤b , b≤a) 
+≤and≥then= (suc a) (suc b) (s≤s a b a≤b , s≤s b a b≤a) = cong suc $ ≤and≥then= a b (a≤b , b≤a)
 
 sa=sb->a=b : (a b : Nat) -> (suc a) ≡ (suc b) -> a ≡ b
 sa=sb->a=b a b sa=sb = cong sub1 sa=sb
@@ -148,6 +143,7 @@ a≤b->sa≤sb (suc m) (suc n) (s≤s m n a≤b) = s≤s (suc m) (suc n) (s≤s 
 -- Can say 
 -- Also not sure if need all of these cases
 
+
 aInRangeB : (a b : Nat) → a ≤ b → isIn Nat a (range b)
 aInRangeB a b a≤b = {!!}
 
@@ -165,3 +161,14 @@ only≤Divides a b b!=0 (a!=b , b≤a) a|b = a!=b $ ≤and≥then= a b (a≤b , 
 ≤Dec a       0       = right (z≤n a)
 ≤Dec (suc a) (suc b) = cases (≤Dec a b) (left ∘ s≤s a b) (right ∘ s≤s b a)
 
+divTrans : (a b c : Nat) -> (a div b) -> (b div c) -> (a div c)
+divTrans = {!!}
+
+aDiv1=>a=1 :(a : Nat) -> (a div 1) -> (a ≡ 1)
+aDiv1=>a=1 a = {!!}
+
+a+c-c=a : (a c : Nat) -> ((a + c) - c) ≡ a
+a+c-c=a a c = {!!}
+
+a*c-a*b=a*c-b : (a b c : Nat) -> (a * c) - (a * b) ≡  (a * (c - b))
+a*c-a*b=a*c-b a b c = {!!}

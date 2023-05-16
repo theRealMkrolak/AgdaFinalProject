@@ -30,8 +30,12 @@ concatNil _ = refl
 listNotNil : {E : Set} (e : E) → (list : List E) → [] ≡ (e :: list) → ⊥
 listNotNil _ _ ()
 
-listNotLengthZero : {E : Set} (e : E) → (list : List E) → 0 ≡ length (e :: list) → ⊥
+listNotLengthZero : {E : Set} (e : E) → (list : List E) → length (e :: list) ≡ 0 → ⊥
 listNotLengthZero _ _ ()
+
+tailConcat=ConcatTail : {E : Set} (l1 l2 : List E) -> (l1 ≡  [] -> ⊥ ) -> (tail $ concat l1 l2) ≡ (concat (tail l1) l2)
+tailConcat=ConcatTail []        l2 l1NeqNil = absurd (l1NeqNil $ refl)
+tailConcat=ConcatTail (l :: l1) l2 l1NeqNil = refl 
 
 concatNotNil : {E : Set} (list : List E) → (e : E) → (rest : List E) → [] ≡ (concat list (e :: rest)) → ⊥
 concatNotNil []        e rest = listNotNil e rest
@@ -51,8 +55,24 @@ isIn E e list = Σ (List E) (λ fr → Σ (List E) (λ bk → (list ≡ concat f
 notInNil : {A : Set} → (a : A) → isIn A a [] → ⊥
 notInNil a inNil = concatNotNil (car inNil) a (car (cdr inNil)) (cdr (cdr inNil))
 
-singletonIsItself : {A : Set} → (a b : A) → isIn A a (b :: []) → a ≡ b
-singletonIsItself a b inBList = {!!}
 
-notHeadThenInRest : {A : Set} {list : List A} → (a b : A) → (isIn A a (b :: list) × (a ≡ b -> ⊥)) → isIn A a list
-notHeadThenInRest a b (inBList , aNotb) = {!!}
+--This approach is probably completely wrong and may need to be rewritten
+notHeadThenInRest : {A : Set} {list : List A}  → (a b : A) → (isIn A a (b :: list) × (a ≡ b -> ⊥)) → isIn A a list
+notHeadThenInRest a b (inBList , aNotb) = let be = car inBList
+                                              cd = cdr inBList
+                                              en = car cd
+                                              eq = cdr cd
+                                              in (tail be , (en ,
+                                                            trans
+                                                              (cong tail eq)
+                                                              (tailConcat=ConcatTail
+                                                                be
+                                                                (a :: en)
+                                                                (λ be=nil -> let list=a::en = trans eq $ trans (cong (λ x -> concat x (a :: en)) be=nil) (concatNil (a :: en))
+                                                                in
+                                                                {!!}))))
+
+singletonIsItself : {A : Set} → (a b : A) → dec= A -> isIn A a (b :: []) → a ≡ b
+singletonIsItself a b decA inBList = cases (decA a b) id (λ a!=b -> absurd $  notInNil a (notHeadThenInRest a b (inBList , a!=b)))
+
+
