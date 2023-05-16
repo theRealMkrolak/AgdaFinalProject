@@ -89,4 +89,4 @@ a+c-c=a : (a c : Nat) -> ((a + c) - c) ≡ a
 a+c-c=a a c = {!!}
 
 a*c-a*b=a*c-b : (a b c : Nat) -> (a * c) - (a * b) ≡  (a * (c - b))
-a*c-a*b=a*c-b a b c = ?
+a*c-a*b=a*c-b a b c = {!!}
