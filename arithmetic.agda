@@ -121,19 +121,30 @@ times0is0 a c c=0 = trans (cong (λ x -> a * x) c=0) $ n*0=0 a
 ≤and≥then= (suc a) 0 (Sa≤0 , 0≤Sa) = sym $ ≤and≥then= 0 (suc a) (0≤Sa , Sa≤0)
 ≤and≥then= (suc a) (suc b) (s≤s a b a≤b , s≤s b a b≤a) = cong suc $ ≤and≥then= a b (a≤b , b≤a) 
 
-a=b->sa=sb : (a b : Nat) -> (suc a) ≡ (suc b) -> a ≡ b
-a=b->sa=sb a b sa=sb = cong sub1 sa=sb
+sa=sb->a=b : (a b : Nat) -> (suc a) ≡ (suc b) -> a ≡ b
+sa=sb->a=b a b sa=sb = cong sub1 sa=sb
 
 a≤b->sa≤sb : (a b : Nat) -> a ≤ b -> (suc a) ≤ (suc b)
 a≤b->sa≤sb zero b (z≤n b) = s≤s 0 b (z≤n b)
 a≤b->sa≤sb (suc m) (suc n) (s≤s m n a≤b) = s≤s (suc m) (suc n) (s≤s m n a≤b)
 
+≤Trans : (a b c : Nat) -> a ≤ b -> b ≤ c -> a ≤ c
+≤Trans zero b c (z≤n b) b≤c = z≤n c
+≤Trans (suc m) (suc n) (suc c) (s≤s m n m≤n) (s≤s n c n≤c) = s≤s m c (≤Trans m n c m≤n n≤c)
+
+≤Product-help : (a b  : Nat) -> suc (a * b) ≤ (suc a * b)
+≤Product-help a b = {!!}
+
 ≤Product : (a b c : Nat) → (c ≡ 0 → ⊥) × (a ≡ b) → a ≤ (b * c)
 ≤Product a b 0 (c!=0 , a=b) = (absurd (c!=0 refl))
-≤Product 0 0 1 (c!=0 , a=b) = z≤n (0 * 1)
-≤Product (suc a) (suc b) 1 (c!=0 , sa=sb) = a≤b->sa≤sb a (b * 1) (≤Product a b 1 (c!=0 , (a=b->sa=sb a b sa=sb)))
-≤Product a b (suc c) (c!=0 , a=b) = {!!}
+≤Product 0 0 c (c!=0 , a=b) = z≤n (0 * c)
+≤Product (suc a) (suc b) c (c!=0 , sa=sb) = (≤Trans (suc a) (suc (b * c)) ((suc b) * c) (a≤b->sa≤sb a (b * c) (≤Product a b c (c!=0 , (sa=sb->a=b a b sa=sb)))) (≤Product-help b c))
+
+--    {!a≤a*b->a≤a*sb (suc b) c (≤Product (suc a) (suc b) c (!}
 -- Recurse down until c == 1
+-- Maybe create transitivity of ≤ and then use that for final case
+-- Can say 
+-- Also not sure if need all of these cases
 
 aInRangeB : (a b : Nat) → a ≤ b → isIn Nat a (range b)
 aInRangeB a b a≤b = {!!}
