@@ -38,7 +38,16 @@ Sn!=0 : (n : Nat) → suc n ≡ 0 → ⊥
 Sn!=0 n ()
 
 dist+ : (a b c : Nat) -> (a + (b + c)) ≡ ((a + b) + c)
-dist+ a b = {!!}
+dist+ 0 b c = refl
+dist+ (suc a) b c = 
+  begin
+    (suc a + (b + c))
+  =⟨⟩
+    (suc (a + (b + c)))
+  =⟨ cong suc (dist+ a b c) ⟩
+    (suc ((a + b) + c))
+  =⟨⟩
+    {!refl!}
 
 *+=*suc-flip : (a b : Nat) -> (b + (a * b)) ≡ ((suc a) * b)
 *+=*suc-flip a b = {!!}
