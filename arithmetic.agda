@@ -127,6 +127,10 @@ a≤b->sa≤sb (suc m) (suc n) (s≤s m n a≤b) = s≤s (suc m) (suc n) (s≤s 
 ≤Trans zero b c (z≤n b) b≤c = z≤n c
 ≤Trans (suc m) (suc n) (suc c) (s≤s m n m≤n) (s≤s n c n≤c) = s≤s m c (≤Trans m n c m≤n n≤c)
 
+≤Cong : {a b : Nat} -> (f : Nat -> Nat) -> a ≤ b -> (f a) ≤ (f b)
+≤Cong f (z≤n _) = {!!}
+≤Cong f (s≤s m n a≤b) = {!!}
+
 ≤Product-help : (a b : Nat) -> (b ≡ 0 -> ⊥) -> suc (a * b) ≤ (suc a * b)
 ≤Product-help a 0 b!=0 = (absurd (b!=0 refl))
 ≤Product-help 0 (suc b) b!=0 =
@@ -134,7 +138,7 @@ a≤b->sa≤sb (suc m) (suc n) (s≤s m n a≤b) = s≤s (suc m) (suc n) (s≤s 
     (suc (zero * (suc b))) 1 (1 * (suc b)) -- a, b, c
     (s≤s 0 0 (z≤n 0)) -- a ≤ b
     (s≤s 0 (1 * b) (z≤n (1 * b))) -- b ≤ c
-≤Product-help (suc a) b b!=0 = {!!}
+≤Product-help (suc a) (suc b) b!=0 = ≤Cong (λ x -> x + ((suc a) * (suc b))) (s≤s 0 b (z≤n b))
 
 ≤Product : (a b c : Nat) → (c ≡ 0 → ⊥) × (a ≡ b) → a ≤ (b * c)
 ≤Product a b 0 (c!=0 , a=b) = (absurd (c!=0 refl))
