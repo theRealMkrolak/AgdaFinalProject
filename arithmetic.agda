@@ -121,9 +121,19 @@ times0is0 a c c=0 = trans (cong (λ x -> a * x) c=0) $ n*0=0 a
 ≤and≥then= (suc a) 0 (Sa≤0 , 0≤Sa) = sym $ ≤and≥then= 0 (suc a) (0≤Sa , Sa≤0)
 ≤and≥then= (suc a) (suc b) (s≤s a b a≤b , s≤s b a b≤a) = cong suc $ ≤and≥then= a b (a≤b , b≤a) 
 
+a=b->sa=sb : (a b : Nat) -> (suc a) ≡ (suc b) -> a ≡ b
+a=b->sa=sb a b sa=sb = cong sub1 sa=sb
+
+a≤b->sa≤sb : (a b : Nat) -> a ≤ b -> (suc a) ≤ (suc b)
+a≤b->sa≤sb zero b (z≤n b) = s≤s 0 b (z≤n b)
+a≤b->sa≤sb (suc m) (suc n) (s≤s m n a≤b) = s≤s (suc m) (suc n) (s≤s m n a≤b)
+
 ≤Product : (a b c : Nat) → (c ≡ 0 → ⊥) × (a ≡ b) → a ≤ (b * c)
-≤Product 0 b c (c!=0 , a=b) = z≤n (b * c)
-≤Product (suc a) b c (c!=0 , suca=b) = {!!}
+≤Product a b 0 (c!=0 , a=b) = (absurd (c!=0 refl))
+≤Product 0 0 1 (c!=0 , a=b) = z≤n (0 * 1)
+≤Product (suc a) (suc b) 1 (c!=0 , sa=sb) = a≤b->sa≤sb a (b * 1) (≤Product a b 1 (c!=0 , (a=b->sa=sb a b sa=sb)))
+≤Product a b (suc c) (c!=0 , a=b) = {!!}
+-- Recurse down until c == 1
 
 aInRangeB : (a b : Nat) → a ≤ b → isIn Nat a (range b)
 aInRangeB a b a≤b = {!!}
