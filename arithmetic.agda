@@ -132,13 +132,15 @@ a≤b->sa≤sb (suc m) (suc n) (s≤s m n a≤b) = s≤s (suc m) (suc n) (s≤s 
 ≤Trans zero b c (z≤n b) b≤c = z≤n c
 ≤Trans (suc m) (suc n) (suc c) (s≤s m n m≤n) (s≤s n c n≤c) = s≤s m c (≤Trans m n c m≤n n≤c)
 
-≤Product-help : (a b  : Nat) -> suc (a * b) ≤ (suc a * b)
-≤Product-help a b = {!!}
+≤Product-help : (a b : Nat) -> (b ≡ 0 -> ⊥) -> suc (a * b) ≤ (suc a * b)
+≤Product-help a 0 b!=0 = (absurd (b!=0 refl))
+≤Product-help 0 b b!=0 = {!!} -- prove suc (zero * b) ≤ (1 * b), suc (zero * b) ≤ 1 ≤ b
+≤Product-help (suc a) b b!=0 = {!!}
 
 ≤Product : (a b c : Nat) → (c ≡ 0 → ⊥) × (a ≡ b) → a ≤ (b * c)
 ≤Product a b 0 (c!=0 , a=b) = (absurd (c!=0 refl))
 ≤Product 0 0 c (c!=0 , a=b) = z≤n (0 * c)
-≤Product (suc a) (suc b) c (c!=0 , sa=sb) = (≤Trans (suc a) (suc (b * c)) ((suc b) * c) (a≤b->sa≤sb a (b * c) (≤Product a b c (c!=0 , (sa=sb->a=b a b sa=sb)))) (≤Product-help b c))
+≤Product (suc a) (suc b) c (c!=0 , sa=sb) = (≤Trans (suc a) (suc (b * c)) ((suc b) * c) (a≤b->sa≤sb a (b * c) (≤Product a b c (c!=0 , (sa=sb->a=b a b sa=sb)))) (≤Product-help b c c!=0))
 
 --    {!a≤a*b->a≤a*sb (suc b) c (≤Product (suc a) (suc b) c (!}
 -- Recurse down until c == 1
