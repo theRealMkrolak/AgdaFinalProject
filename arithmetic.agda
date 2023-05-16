@@ -89,4 +89,8 @@ a+c-c=a : (a c : Nat) -> ((a + c) - c) ≡ a
 a+c-c=a a c = {!!}
 
 a*c-a*b=a*c-b : (a b c : Nat) -> (a * c) - (a * b) ≡  (a * (c - b))
-a*c-a*b=a*c-b a b c = ?
+a*c-a*b=a*c-b a b c = {!!}
+
+assoc* : (a b c : Nat) → a * (b * c) ≡ (a * b) * c
+assoc* 0 b c = refl
+assoc* (suc a) b c = {! !}

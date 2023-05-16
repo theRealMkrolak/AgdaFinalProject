@@ -160,7 +160,7 @@ fta (suc (suc n)) neq1 = cases (ftaHelper n n) (λ fin -> ((+2 n) , (only1Divide
 
 product : List Nat -> Nat
 product [] = 1
-product (l :: ls) = l * product ls 
+product (l :: ls) = l * (product ls) 
 
 infinitePrimes : (n : Nat) -> Σ Nat (λ x -> (n ≤ x) × isPrime x)
 infinitePrimes  0             = (2 , ((z≤n 2) , 2IsPrime))
@@ -170,13 +170,42 @@ infinitePrimes (suc (suc n)) = let
                        list      = car list+ev
                        listEv    = cdr list+ev
                        listProd  = product list
-                       fta       = fta (suc listProd) {!!}
+                       fta       = fta (1 + listProd) {!!}
                        prime     = car fta
                        evidence  = cdr fta
+                       p|n       = snd $ evidence
                        in
                        cases (≤Dec prime (suc (suc n)))
                              (λ p≤n -> let
-                                       pInList = listEv prime (p≤n , fst evidence)
+                                       pInList  = listEv prime (p≤n , fst evidence)
+                                       pInEvd   = (cdr (cdr pInList))
+                                       be       = product (car pInList)
+                                       en       = product (car $ cdr pInList)
+                                       c        = (be * en)
+                                       b        = car p|n
+                                       ac       = prime * c
+                                       abc=list : be * (prime * en) ≡ listProd
+                                       abc=list = {!!}  --RIP
+                                       abe=bea  : (prime * be ≡ be * prime)
+                                       abe=bea  = comm* prime be
+                                       bac=bac  : (be * prime) * en ≡ listProd
+                                       bac=bac  = (trans (sym $ assoc* be prime en) abc=list) 
+                                       abc=list : (prime * (be * en) ≡ listProd)
+                                       abc=list = trans (assoc* prime be en) $ trans (cong (λ x -> x * en) $ abe=bea) bac=bac
+                                       1+ac=1+l : (1 + (prime * c) ≡ 1 + listProd)
+                                       1+ac=1+l = cong
+                                                  (λ x -> 1 + x) abc=list
+                                       1+ac=ab  : (1 + (prime * c) ≡ (prime * b))
+                                       1+ac=ab  = trans
+                                                  1+ac=1+l
+                                                  (sym $ cdr p|n)
+                                       1=ab-ac  : (1 ≡ (prime * b) - ac)
+                                       1=ab-ac  = trans
+                                                 (sym $ a+c-c=a 1 ac)
+                                                 (cong (λ x -> x - ac) 1+ac=ab)
                                        in
-                                       {!!})
+                                       absurd (1isNotPrime $ replace
+                                                             (aDiv1=>a=1 prime ((b - c) , (sym $ trans 1=ab-ac (a*c-a*b=a*c-b prime c b))))
+                                                             (λ x -> isPrime x)
+                                                             (fst evidence)))
                              (λ n≤p -> (prime , (n≤p , fst evidence)))
