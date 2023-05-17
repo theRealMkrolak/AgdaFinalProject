@@ -149,11 +149,6 @@ a≤b->sa≤sb (suc m) (suc n) (s≤s m n a≤b) = s≤s (suc m) (suc n) (s≤s 
     (suc+=+suc b c)
     (s≤s (a + c) (b + c) (≤+ a b c a≤b))
 
-{--
-≤+ 0 b (suc c) a≤b = {!!} --s≤s (0 + c) (b + c) (≤+ 0 b c (z≤n b))
-≤+ (suc a) (suc b) 0 sa≤sb = {!!}
-≤+ (suc a) (suc b) (suc c) a≤b = {!!}
---}
 ≤Product-help : (a b : Nat) -> (b ≡ 0 -> ⊥) -> suc (a * b) ≤ (suc a * b)
 ≤Product-help a 0 b!=0 = (absurd (b!=0 refl))
 ≤Product-help 0 (suc b) b!=0 =
