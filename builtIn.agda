@@ -73,7 +73,7 @@ zero    + y = y
 (suc x) + y = suc (x + y)
 
 _-_ : Nat → Nat → Nat
-0 - y = y
+0 - y = 0
 x - 0 = x
 (suc x) - (suc y) = x - y
 
