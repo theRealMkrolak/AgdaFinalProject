@@ -127,10 +127,33 @@ a≤b->sa≤sb (suc m) (suc n) (s≤s m n a≤b) = s≤s (suc m) (suc n) (s≤s 
 ≤Trans zero b c (z≤n b) b≤c = z≤n c
 ≤Trans (suc m) (suc n) (suc c) (s≤s m n m≤n) (s≤s n c n≤c) = s≤s m c (≤Trans m n c m≤n n≤c)
 
-≤Cong : {a b : Nat} -> (f : Nat -> Nat) -> a ≤ b -> (f a) ≤ (f b)
-≤Cong f (z≤n _) = {!!}
-≤Cong f (s≤s m n a≤b) = {!!}
+≤Switch : (a b c d : Nat) -> a ≡ b -> c ≡ d -> a ≤ c -> b ≤ d
+≤Switch a b c d a=b c=d a≤c = 
+  replace c=d
+    (λ x -> b ≤ x)
+    (replace a=b
+      (λ x -> x ≤ c)
+      a≤c)
 
+≤+ : (a b c : Nat) -> a ≤ b -> (a + c) ≤ (b + c)
+≤+ a b 0 a≤b = 
+  ≤Switch
+    a (a + 0) b (b + 0)
+    (+0= a)
+    (+0= b)
+    a≤b
+≤+ a b (suc c) a≤b = 
+  ≤Switch
+    (suc (a + c)) (a + (suc c)) (suc (b + c)) (b + (suc c))
+    (suc+=+suc a c)
+    (suc+=+suc b c)
+    (s≤s (a + c) (b + c) (≤+ a b c a≤b))
+
+{--
+≤+ 0 b (suc c) a≤b = {!!} --s≤s (0 + c) (b + c) (≤+ 0 b c (z≤n b))
+≤+ (suc a) (suc b) 0 sa≤sb = {!!}
+≤+ (suc a) (suc b) (suc c) a≤b = {!!}
+--}
 ≤Product-help : (a b : Nat) -> (b ≡ 0 -> ⊥) -> suc (a * b) ≤ (suc a * b)
 ≤Product-help a 0 b!=0 = (absurd (b!=0 refl))
 ≤Product-help 0 (suc b) b!=0 =
@@ -138,7 +161,7 @@ a≤b->sa≤sb (suc m) (suc n) (s≤s m n a≤b) = s≤s (suc m) (suc n) (s≤s 
     (suc (zero * (suc b))) 1 (1 * (suc b)) -- a, b, c
     (s≤s 0 0 (z≤n 0)) -- a ≤ b
     (s≤s 0 (1 * b) (z≤n (1 * b))) -- b ≤ c
-≤Product-help (suc a) (suc b) b!=0 = ≤Cong (λ x -> x + ((suc a) * (suc b))) (s≤s 0 b (z≤n b))
+≤Product-help (suc a) (suc b) b!=0 = ≤+ 1 (suc b) ((suc a) * (suc b))  (s≤s 0 b (z≤n b))
 
 ≤Product : (a b c : Nat) → (c ≡ 0 → ⊥) × (a ≡ b) → a ≤ (b * c)
 ≤Product a b 0 (c!=0 , a=b) = (absurd (c!=0 refl))
@@ -148,12 +171,6 @@ a≤b->sa≤sb (suc m) (suc n) (s≤s m n a≤b) = s≤s (suc m) (suc n) (s≤s 
     (suc a) (suc (b * c)) ((suc b) * c) -- a, b, c
     (a≤b->sa≤sb a (b * c) (≤Product a b c (c!=0 , (sa=sb->a=b a b sa=sb)))) -- a ≤ b
     (≤Product-help b c c!=0)) -- b ≤ c
-
---    {!a≤a*b->a≤a*sb (suc b) c (≤Product (suc a) (suc b) c (!}
--- Recurse down until c == 1
--- Maybe create transitivity of ≤ and then use that for final case
--- Can say 
--- Also not sure if need all of these cases
 
 
 aInRangeB : (a b : Nat) → a ≤ b → isIn Nat a (range b)
