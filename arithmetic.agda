@@ -11,17 +11,41 @@ sub1 : Nat → Nat
 sub1 0 = 0
 sub1 (suc n) = n
 
++1= : (b : Nat) → suc b ≡ (b + 1)
++1= 0       = refl 
++1= (suc b) = sym (
+  begin
+    suc b + 1
+  =⟨⟩
+    suc (b + 1)
+  =⟨ cong suc (sym (+1= b))⟩
+    suc (suc b)
+  end )
+
+
 +0= : (b : Nat) → b ≡ (b + 0)
 +0= 0       = refl
 +0= (suc b) = cong suc (+0= b)
 
+*1=1 : (a : Nat) → a ≡ (a * 1)
+*1=1 0 = refl
+*1=1 (suc a) = sym
+  (begin
+    (suc a) * 1
+  =⟨⟩
+    (a * 1) + 1
+  =⟨ sym (+1= (a * 1)) ⟩
+   suc (a * 1) 
+  =⟨ cong suc (sym (*1=1 a)) ⟩
+    suc a
+  end)
+
 *1= : (b : Nat) → b ≡ (b * 1)
-*1= 0       = refl
-*1= (suc b) = cong suc (*1= b)
+*1= = *1=1
 
 n*0=0 : (n : Nat) → n * 0 ≡ 0
 n*0=0  0       = refl
-n*0=0  (suc n) = cong (λ x → 0 + x) $ n*0=0 n
+n*0=0  (suc n) = cong (λ x → x + 0) $ n*0=0 n
 
 suc+=+suc : (a b : Nat) → suc (a + b) ≡ a + (suc b)
 suc+=+suc 0       b = refl
@@ -85,12 +109,288 @@ divTrans = {!!}
 aDiv1=>a=1 :(a : Nat) -> (a div 1) -> (a ≡ 1)
 aDiv1=>a=1 a = {!!}
 
-a+c-c=a : (a c : Nat) -> ((a + c) - c) ≡ a
-a+c-c=a a c = {!!}
+
+
+assoc+ : (a b c : Nat) -> (a + (b + c)) ≡ ((a + b) + c)
+assoc+ a 0 c =
+  begin
+    a + (0 + c)
+  =⟨⟩
+    a + c
+  =⟨ cong (λ x → (x + c)) (+0= a)⟩
+    (a + 0) + c
+  end
+assoc+ a (suc b) c =
+  begin
+    a + (suc b + c)
+  =⟨⟩
+    a + suc (b + c)
+  =⟨ sym ( suc+=+suc a (b + c)) ⟩
+    suc (a + (b + c))
+  =⟨ cong suc  (assoc+ a b c) ⟩
+    suc ((a + b) + c)
+  =⟨⟩
+    suc (a + b) + c
+  =⟨ cong (λ x → (x + c)) (suc+=+suc a b) ⟩
+    (a + suc b) + c
+  end
+    
+assoc-flip : (a b c : Nat) -> (a + (b + c)) ≡ (b + (a + c))
+assoc-flip a b c =
+  (trans (assoc+ a b c)
+    (trans (cong (λ x → (x + c)) (comm+ a b))
+      (sym (assoc+ b a c))))
+      
+
+
+suc-help : (a b : Nat) → b + (a * b) ≡ (suc a) * b
+suc-help a b = sym
+  (begin
+    (suc a) * b
+  =⟨⟩
+    (a * b) + b
+  =⟨ comm+ (a * b) b ⟩ 
+    b + (a * b)
+  end)
+
+suc-rev : (a b : Nat) → suc ( a + b) ≡ (suc a) + b
+suc-rev a b = sym (
+  begin
+    (suc a) + b
+  =⟨⟩
+    suc ( a + b)
+  end )
+ 
+
+*suc=+* : ( a b : Nat) → a + (a * b) ≡ a * (suc b)
+*suc=+* 0  b      = refl
+*suc=+* (suc a) b = sym (
+  begin
+    suc a * suc b
+  =⟨⟩
+    (a * suc b) + (suc b)
+  =⟨ comm+ (a * suc b) (suc b) ⟩
+    suc b + (a * suc b)
+  =⟨⟩
+    suc (b + (a * suc b))
+  =⟨ cong (λ x → suc (b + x)) (sym (*suc=+* a b)) ⟩
+    suc (b + (a + (a * b)))
+  =⟨ cong suc (assoc-flip b a (a * b)) ⟩
+    suc (a + (b + (a * b)))
+  =⟨ suc-rev a (b + (a * b)) ⟩
+    suc a + (b + (a * b))
+  =⟨ cong (λ x → (suc a + x)) (suc-help a b) ⟩
+    suc a + (suc a * b)
+  end ) 
+
+
+
+
+c-c=0 : (c : Nat) -> (c - c) ≡ 0
+c-c=0 0 = refl
+c-c=0 (suc c) = 
+  begin
+    (suc c - (suc c))
+  =⟨⟩
+    (c - c)
+  =⟨ (c-c=0 c) ⟩
+    0
+  end
+
+-- wtf.. 
+a+c-c=a : (a c :  Nat) -> ((a + c) - c) ≡ a
+a+c-c=a a 0 = 
+  begin
+    (a + 0) - 0
+  =⟨ cong (λ x -> x - 0) (sym (+0= a)) ⟩
+    a - 0
+  =⟨⟩
+    a 
+  end
+a+c-c=a a (suc c) =
+  begin
+    (a + suc c) - (suc c)
+  =⟨ cong (λ x → x - (suc c)) (comm+ a (suc c)) ⟩
+    (suc c + a) - (suc c)
+  =⟨⟩
+    suc (c + a) - (suc c)
+  =⟨ cong (λ x → suc x - (suc c)) (comm+ c a)  ⟩
+    suc (a + c) - (suc c)
+  =⟨⟩
+    (a + c) - c
+  =⟨ a+c-c=a a c ⟩
+    a
+  end
+    
+-- WTF
+-0=0 : (a : Nat) -> 0 ≡ (0 - a)
+-0=0 0 = refl
+-0=0 (suc a) = refl 
+
+neg-distr : (a b c : Nat) -> a - (b + c) ≡  ((a - b) - c)
+neg-distr 0 0 c = refl
+neg-distr (suc a) 0 c = refl
+neg-distr 0 (suc b) c =
+  begin
+    zero - (suc b + c)
+  =⟨⟩
+    zero - suc (b + c)
+  =⟨⟩
+    zero
+  =⟨ -0=0 c ⟩
+    0 - c
+  =⟨ cong (λ x -> x - c) (-0=0 (suc b)) ⟩
+    (0 - suc b) - c
+  end
+neg-distr (suc a) (suc b) c =
+  begin
+    suc a - (suc b + c)
+  =⟨⟩
+    (suc a) - (suc (b + c))
+  =⟨⟩
+    a - (b + c)
+  =⟨ neg-distr a b c ⟩
+    (a - b) - c 
+  end
+
+
+
+sca-sba : (a b c : Nat) -> (b + a) - (c + a) ≡ b - c
+sca-sba a 0 0 = 
+  begin
+    (zero + a) - (zero + a)
+  =⟨⟩
+    a - a
+  =⟨ c-c=0 a ⟩
+    0
+  end
+sca-sba a (suc b) 0 =
+  begin
+    (suc b + a) - (zero + a)
+  =⟨⟩
+    (suc b + a) - a
+  =⟨ a+c-c=a (suc b) a ⟩
+    suc b
+  end
+sca-sba a 0 (suc c) =
+  begin
+    (0 + a) - (suc c + a)
+  =⟨ cong (λ x -> (0 + a) - x) (comm+ (suc c) a) ⟩
+    (0 + a) - (a + suc c)
+  =⟨⟩
+    a - (a + suc c)
+  =⟨ neg-distr a a (suc c) ⟩
+    (a - a) - (suc c)
+  =⟨ cong (λ x -> x - (suc c)) (c-c=0 a) ⟩
+    0 - (suc c)
+  =⟨⟩
+    0
+  end
+sca-sba a (suc b) (suc c) =
+  begin
+    (suc b + a) - (suc c + a)
+  =⟨⟩
+    suc (b + a) - suc (c + a)
+  =⟨⟩
+    (b + a) - (c + a)
+  =⟨ sca-sba a b c ⟩
+    (b - c)
+  end
 
 a*c-a*b=a*c-b : (a b c : Nat) -> (a * c) - (a * b) ≡  (a * (c - b))
-a*c-a*b=a*c-b a b c = {!!}
+a*c-a*b=a*c-b a 0 0 =
+  begin
+    (a * zero) - (a * zero)
+  =⟨ c-c=0 (a * 0) ⟩
+    0
+  =⟨ sym $ n*0=0 a ⟩
+    a * 0
+  end
+a*c-a*b=a*c-b a (suc b) 0 =
+  begin
+    (a * 0) - (a * (suc b))
+  =⟨ cong (λ x -> (x - (a * (suc b)))) (n*0=0 a) ⟩
+    0 - (a * (suc b)) 
+  =⟨ sym (-0=0 (a * (suc b))) ⟩
+    0
+  =⟨ sym $ n*0=0 a ⟩
+    a * 0
+  =⟨ cong (λ x -> a * x) (-0=0 (suc b)) ⟩
+    a * (zero - suc b)
+  end
+a*c-a*b=a*c-b a 0 (suc c) =
+  begin
+    (a * suc c) - (a * zero)
+  =⟨ cong (λ x -> (a * (suc c)) - x)  (n*0=0 a) ⟩
+    (a * (suc c)) - 0 
+  =⟨⟩
+    a * (suc c)
+  end
+a*c-a*b=a*c-b a (suc b) (suc c) =
+ begin
+    (a * suc c) - (a * suc b)
+  =⟨ cong (λ x -> (a * suc c) - x) (comm* a (suc b)) ⟩
+    (a * suc c) -  (suc b * a)
+  =⟨ cong (λ x -> x - (suc b * a)) (comm* a (suc c)) ⟩
+    (suc c * a) - (suc b * a)
+  =⟨⟩
+    ((c * a) + a) - ((b * a) + a)
+  =⟨ sca-sba a (c * a) (b * a) ⟩
+    (c * a) - (b * a)
+  =⟨ cong (λ x -> (c * a) - x ) (comm* b a) ⟩
+    (c * a) - (a * b)
+  =⟨ cong (λ x -> x - (a * b) ) (comm* c a) ⟩
+    (a * c) - (a * b)
+  =⟨ a*c-a*b=a*c-b a b c ⟩
+    a * (c - b)
+  end
+
+distr+* : (a b c : Nat) → (a + b) * c ≡ (a * c) + (b * c)
+distr+* 0 b c = refl
+distr+* (suc a) b c = -- {! !}
+  begin
+    (suc a + b) * c
+  =⟨⟩
+    suc ( a + b) * c
+  =⟨⟩
+    (( a + b) * c) + c
+  =⟨ cong (λ x → (x + c)) (distr+* a b c) ⟩
+    ((a * c) + (b * c)) + c
+  =⟨ comm+ ((a * c) + (b * c)) c ⟩
+    c + ((a * c) + (b * c))
+  =⟨ assoc+ c (a * c) (b * c)  ⟩
+    (c + (a * c)) + (b * c)
+  =⟨ cong (λ x → (x + (b * c))) (suc-help a c) ⟩
+    ( suc a * c ) + (b * c)
+  end
+
+distr*+ : (a b c : Nat) → a * (b + c) ≡ (a * b) + (a * c)
+distr*+ a b c =
+  trans
+    (comm* a (b + c))
+    (trans
+      (distr+* b c a)
+      (trans
+        (cong (λ x → (x + (c * a))) (comm* b a) )
+        (cong (λ x → ((a * b) + x)) (comm* c a))))
 
 assoc* : (a b c : Nat) → a * (b * c) ≡ (a * b) * c
 assoc* 0 b c = refl
-assoc* (suc a) b c = {! !}
+assoc* (suc a) b c = --  {! !}
+  begin
+    suc a * (b * c)
+  =⟨⟩
+    (a * (b * c)) + (b * c)
+  =⟨ cong (λ x → x + (b * c)) (assoc* a b c) ⟩
+    ((a * b) * c) + (b * c)
+  =⟨ sym ( distr+*  (a * b) b c ) ⟩
+    ((a * b) + b) * c
+  =⟨ cong (λ x → x * c) (comm+ (a * b) b) ⟩
+    (b + (a * b)) * c
+  =⟨ cong (λ x → x * c) (suc-help a b) ⟩
+    (suc a * b) * c
+  end
+    
+
+a≤Sb&a!=Sb=>a≤b : (a b : Nat) -> a ≤ (suc b) -> (a ≡ (suc b) -> ⊥) -> a ≤ b
+a≤Sb&a!=Sb=>a≤b a b a≤Sb a!=Sb = {!!}

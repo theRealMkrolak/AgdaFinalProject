@@ -60,16 +60,16 @@ test (a :: ls) = (a :: (a :: ls))
 test [] = []
 
 --fuck this function
-stupid : {A : Set} -> (a : A) -> (l : List A) -> (b : A) -> (j : List A) -> ((a :: l) ≡ (b :: j)) -> (a ≡ b)
-stupid a l b j refl = refl
+stupid : {A : Set} -> {a b : A} -> {l j : List A} ->  ((a :: l) ≡ (b :: j)) -> (a ≡ b)
+stupid refl = refl
 
 
-notHeadThenInRest : {A : Set} (list : List A)  → (a b : A) → (isIn A a (b :: list) × (a ≡ b -> ⊥)) → isIn A a list
-notHeadThenInRest list a b (inBList , aNotb) = let be = car inBList
-                                                   cd = cdr inBList
-                                                   en = car cd
-                                                   eq = cdr cd
-                                               in (tail be , (en ,
+notHeadThenInRest : {A : Set} {list : List A}  → (a b : A) → (isIn A a (b :: list) × (a ≡ b -> ⊥)) → isIn A a list
+notHeadThenInRest a b (inBList , aNotb) = let be = car inBList
+                                              cd = cdr inBList
+                                              en = car cd
+                                              eq = cdr cd
+                                              in (tail be , (en ,
                                                              trans
                                                               (cong tail eq)
                                                               (tailConcat=ConcatTail
@@ -77,9 +77,9 @@ notHeadThenInRest list a b (inBList , aNotb) = let be = car inBList
                                                                 (a :: en)
                                                                 (λ be=nil -> let list=a::en = trans eq $ trans (cong (λ x -> concat x (a :: en)) be=nil) (concatNil (a :: en))
                                                                 in
-                                                                aNotb (sym $ stupid b list a en list=a::en)))))
+                                                                aNotb (sym $ stupid list=a::en)))))
 
 singletonIsItself : {A : Set} → (a b : A) → dec= A -> isIn A a (b :: []) → a ≡ b
-singletonIsItself a b decA inBList = cases (decA a b) id (λ a!=b -> absurd $  notInNil a (notHeadThenInRest [] a b (inBList , a!=b)))
+singletonIsItself a b decA inBList = cases (decA a b) id (λ a!=b -> absurd $  notInNil a (notHeadThenInRest a b (inBList , a!=b)))
 
 
