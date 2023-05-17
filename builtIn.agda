@@ -9,6 +9,8 @@ absurd ()
 -- Products
 data _×_ (A B : Set) : Set where
  _,_ : A → B → A × B
+ 
+infixr 4 _,_
 
 fst : {A B : Set} → A × B → A
 fst  (a , b) = a
@@ -71,7 +73,7 @@ zero    + y = y
 (suc x) + y = suc (x + y)
 
 _-_ : Nat → Nat → Nat
-0 - y = y
+0 - y = 0
 x - 0 = x
 (suc x) - (suc y) = x - y
 
