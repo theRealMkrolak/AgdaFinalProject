@@ -135,7 +135,7 @@ primeDec (suc (suc n)) = let p = (+2 n) in cases (primeDecHelper n n 0 refl (div
 2IsPrime = only1Divides=>isPrime 0 (body (left refl) (stop))
 
 
--- probably good inductive definition
+
 primeList : (n : Nat) -> Σ (List Nat) (λ l -> (x : Nat)  -> ((x ≤ n) × (isPrime x)) -> (isIn Nat x l))
 primeList 0 = ([] , (λ x x≤nisPrimeX -> let
                                         x≤n      = fst x≤nisPrimeX
