@@ -4,7 +4,7 @@ module List where
 open import BuiltIn
 
 data List (E : Set) : Set where
-  []   : List E 
+  []   : List E
   _::_ : E → List E → List E
 infixr 5 _::_
 
@@ -21,7 +21,7 @@ head [] lengthNotZero = absurd (lengthNotZero refl)
 head (e :: es) _ = e
 
 concat : {E : Set} → List E → List E → List E
-concat (e :: es) rest = e :: (concat es rest) 
+concat (e :: es) rest = e :: (concat es rest)
 concat []             = id
 
 concatNil : {E : Set} → (list : List E) → concat [] list ≡ list
@@ -35,7 +35,7 @@ listNotLengthZero _ ()
 
 tailConcat=ConcatTail : {E : Set} (l1 l2 : List E) -> (l1 ≡  [] -> ⊥ ) -> (tail $ concat l1 l2) ≡ (concat (tail l1) l2)
 tailConcat=ConcatTail []        l2 l1NeqNil = absurd (l1NeqNil $ refl)
-tailConcat=ConcatTail (l :: l1) l2 l1NeqNil = refl 
+tailConcat=ConcatTail (l :: l1) l2 l1NeqNil = refl
 
 concatNotNil : {E : Set} (list : List E) → (e : E) → (rest : List E) → [] ≡ (concat list (e :: rest)) → ⊥
 concatNotNil []        e rest = listNotNil rest
@@ -60,16 +60,16 @@ test (a :: ls) = (a :: (a :: ls))
 test [] = []
 
 --fuck this function
-stupid : {A : Set} -> (a : A) -> (l : List A) -> (b : A) -> (j : List A) -> ((a :: l) ≡ (b :: j)) -> (a ≡ b)
-stupid a l b j refl = refl
+stupid : {A : Set} -> {a b : A} -> {l j : List A} ->  ((a :: l) ≡ (b :: j)) -> (a ≡ b)
+stupid refl = refl
 
 
-notHeadThenInRest : {A : Set} (list : List A)  → (a b : A) → (isIn A a (b :: list) × (a ≡ b -> ⊥)) → isIn A a list
-notHeadThenInRest list a b (inBList , aNotb) = let be = car inBList
-                                                   cd = cdr inBList
-                                                   en = car cd
-                                                   eq = cdr cd
-                                               in (tail be , (en ,
+notHeadThenInRest : {A : Set} {list : List A}  → (a b : A) → (isIn A a (b :: list) × (a ≡ b -> ⊥)) → isIn A a list
+notHeadThenInRest a b (inBList , aNotb) = let be = car inBList
+                                              cd = cdr inBList
+                                              en = car cd
+                                              eq = cdr cd
+                                              in (tail be , (en ,
                                                              trans
                                                               (cong tail eq)
                                                               (tailConcat=ConcatTail
@@ -77,9 +77,7 @@ notHeadThenInRest list a b (inBList , aNotb) = let be = car inBList
                                                                 (a :: en)
                                                                 (λ be=nil -> let list=a::en = trans eq $ trans (cong (λ x -> concat x (a :: en)) be=nil) (concatNil (a :: en))
                                                                 in
-                                                                aNotb (sym $ stupid b list a en list=a::en)))))
+                                                                aNotb (sym $ stupid list=a::en)))))
 
 singletonIsItself : {A : Set} → (a b : A) → dec= A -> isIn A a (b :: []) → a ≡ b
-singletonIsItself a b decA inBList = cases (decA a b) id (λ a!=b -> absurd $  notInNil a (notHeadThenInRest [] a b (inBList , a!=b)))
-
-
+singletonIsItself a b decA inBList = cases (decA a b) id (λ a!=b -> absurd $  notInNil a (notHeadThenInRest a b (inBList , a!=b)))
