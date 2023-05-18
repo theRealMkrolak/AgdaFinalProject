@@ -9,7 +9,6 @@ absurd ()
 -- Products
 data _×_ (A B : Set) : Set where
  _,_ : A → B → A × B
- 
 infixr 4 _,_
 
 fst : {A B : Set} → A × B → A
@@ -82,7 +81,6 @@ zero  * m = zero
 suc n * m = (n * m) + m
 infixr 5 _*_
 
-
 data _≤_ : Nat → Nat → Set where
   z≤n : (n : Nat) → zero ≤ n 
   s≤s : (m n : Nat) → m ≤ n → (suc m) ≤ (suc n)
@@ -111,7 +109,7 @@ difference (s≤s m n pred≤) = k , eqProof
      end
 
 _div_ : Nat → Nat → Set
-a div b = (Σ Nat (λ n → (a * n) ≡ b))
+a div b = Σ Nat (λ n → (a * n) ≡ b)
 
 0!=Sn : (n : Nat) → 0 ≡ suc n → ⊥
 0!=Sn n ()
@@ -146,10 +144,9 @@ finMap : {A B : Nat → Set} {n : Nat} → ({m : Nat} → A m → B m) → Fin A
 finMap f (body An finN-1) = body (f An) (finMap f finN-1)
 finMap f stop = stop
 
--- Decideablity
-
-dec= : (A : Set) -> Set
-dec= A = (a b : A) -> Either (a ≡  b) (a ≡ b -> ⊥)
+-- Decidability
+dec= : (A : Set) → Set
+dec= A = (a b : A) → Either (a ≡  b) (a ≡ b -> ⊥)
 
 -- Miscellaneous
 id : {A : Set} → A → A

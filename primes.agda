@@ -8,8 +8,6 @@ isPrime : Nat → Set
 isPrime 1 = ⊥
 isPrime n = (x : Nat) → (x ≡ n → ⊥) × (x div n) → x ≡ 1
 
-
-
 natDec : (a b : Nat) → Either (a ≡ b) (a ≡ b -> ⊥)
 natDec 0       0       = left refl
 natDec 0       (suc b) = right $ 0!=Sn b
@@ -57,8 +55,7 @@ divDec n p = divDecHelper n p p 0 refl (natDec (n * 0) p , stop)
 0isNotPrime : isPrime 0 → ⊥
 0isNotPrime isPrime0 = (0!=Sn 0 ∘ cong sub1 ∘ sym) $ isPrime0 2 ((0!=Sn 1 ∘ sym) , AllDivide0 2)
 
---I think this has to do with the fact that nothing fits the criteria so false implies true. So this is most likely due to our definition of primeness.
-1isNotPrime : isPrime 1 -> ⊥
+1isNotPrime : isPrime 1 → ⊥
 1isNotPrime = id
 
 --1isPrime : isPrime 1
@@ -67,13 +64,11 @@ divDec n p = divDecHelper n p p 0 refl (natDec (n * 0) p , stop)
 --    (body x!=1 (body (λ x=0 → (0!=Sn 0) (sym $ only0Divides0 1 (car x|1 , (trans (sym $ cong (_* car x|1) x=0) (cdr x|1))))) (end)))))
 --  (λ 1≤x → only≤Divides x 1  (0!=Sn 0 ∘ sym) (x!=1 , 1≤x) x|1)
 
--- Laura stopped about here
-
 primeDecHelper : (p q m : Nat) -> ((+2 m) + q) ≡ (+2 p)
                                -> Either ((+2 m) div (+2 p)) ((+2 m) div (+2 p) -> ⊥) × Fin (λ x -> Either (+2 x ≡ +2 p) ((+2 x) div (+2 p) -> ⊥)) m
                                -> Either (Fin (λ x -> Either ((+2 x) ≡ (+2 p)) ((+2 x) div (+2 p) -> ⊥))  (suc p)) (isPrime (+2 p) -> ⊥)
 primeDecHelper p (suc q) m  m+q=p (right !m|p , finN-1) = primeDecHelper p q (suc m) (trans (suc+=+suc (+2 m) q) m+q=p) (divDec (suc (+2 m)) (+2 p) , body (right !m|p) finN-1)
-primeDecHelper p (suc q) m  m+q=p (left   m|p , finN-1) = right (λ pIsPrime -> (λ ()) $ pIsPrime (+2 m) (?  , m|p))
+primeDecHelper p (suc q) m  m+q=p (left   m|p , finN-1) = right (λ pIsPrime -> (λ ()) $ pIsPrime (+2 m) ({!!}  , m|p))
 primeDecHelper p 0       m  m+q=p (right !m|p , finN-1) = right (λ pIsPrime -> !m|p (1 , trans (sym (*1= (+2 m)))  (trans (+0= (+2 m)) m+q=p)))
 primeDecHelper p 0       m  m+q=p (left   m|p , finN-1) = left $ replace
                                                                             (cong (sub1) (trans (+0= (+2 m)) m+q=p))
@@ -82,7 +77,6 @@ primeDecHelper p 0       m  m+q=p (left   m|p , finN-1) = left $ replace
 
 -- Ok the strategy here is use only≤Divides for the case where p≤x and then for the other case use aInRageB to get the list of possible entries for a
 -- Then because, from fin, that all but 0 and 1 are not possible we can then eliminate those. Thats as far as I got. Look at list for inspiration
-
 
 only1Divides=>isPrimeHelper : (p x n : Nat) -> (x ≡ (+2 p) → ⊥) × (x div (+2 p)) -> (isIn Nat x (range $ +2 n)) -> Fin (λ y -> Either (+2 y ≡ +2 p) ((+2 y) div (+2 p) -> ⊥)) (suc n) -> x ≡ 1
 only1Divides=>isPrimeHelper p x 0       (x!=p , x|p) isInRange2 (body (left n=p)     stop) = cases (natDec x  2)
@@ -131,8 +125,6 @@ primeDec (suc (suc n)) = let p = (+2 n) in cases (primeDecHelper n n 0 refl (div
 2IsPrime : isPrime 2
 2IsPrime = only1Divides=>isPrime 0 (body (left refl) (stop))
 
-
-
 primeList : (n : Nat) -> Σ (List Nat) (λ l -> (x : Nat)  -> ((x ≤ n) × (isPrime x)) -> (isIn Nat x l))
 primeList 0 = ([] , (λ x x≤nisPrimeX -> let
                                         x≤n      = fst x≤nisPrimeX
@@ -150,7 +142,7 @@ primeList (suc n) = let primeListN = primeList n in cases (primeDec (suc n))
                                                                                    (λ x=Sn  ->  replace
                                                                                                 (sym x=Sn)
                                                                                                 (λ y -> isIn Nat y ((suc n) :: car primeListN))
-                                                                                                ([] , (car primeListN , (concatNil ((suc n) :: car primeListN)))))
+                                                                                                ([] , (car primeListN , (nilConcat ((suc n) :: car primeListN)))))
                                                                                    (λ x!=Sn -> let
                                                                                                isInPrimeListN = (cdr primeListN) x ((a≤Sb&a!=Sb=>a≤b x n x≤Sn x!=Sn) , isPrimeX)
                                                                                                crInList       = car isInPrimeListN
@@ -194,7 +186,6 @@ ftaHelper m (suc q) = let p = (+2 $ suc q)
                                               (λ fin ->  left (body (right notP|n) fin))
                                               right))
 
-
 fta : (n : Nat) -> (Σ (Nat) (λ p -> (isPrime p) × (p div (+2 n))))
 fta n = cases (ftaHelper n n) (λ fin -> ((+2 n) , (only1Divides=>isPrime n fin , (1 , (sym $ *1= (+2 n)))))) (λ x -> ((+2 $ car x) , cdr x))
 
@@ -213,7 +204,6 @@ realFta (suc (suc n)) neq1 = fta n
 -- b=1
 -- contradiction
 -- c!=0
---
 
 product : List Nat -> Nat
 product [] = 1
@@ -221,11 +211,14 @@ product (l :: ls) = l * (product ls)
 
 productLemma : (list be en : List Nat) -> (p :  Nat) -> (concat be (p :: en) ≡ list) -> ((product be) * (p * (product en)) ≡ product list)
 productLemma list [] en p eq =  let
-                                p*ed=list = cong product (trans (concatNil (p :: en)) eq)
+                                p*ed=list = cong product (trans (nilConcat (p :: en)) eq)
                                 1*ped=ped = trans (comm* 1 (p * (product en))) (sym $ *1= (p * (product en)))
                                 in
                                 trans 1*ped=ped  p*ed=list
 productLemma (l :: ls) (b :: be) en p refl =  trans (sym $ assoc* l (product be) (p * product en)) (cong (λ x -> b * x) $ productLemma ls be en p refl)
+
+productPrimeList : (n : Nat) → product (car (primeList n)) ≡ 0 → ⊥
+productPrimeList n = {!!}
 
 infinitePrimes : (n : Nat) -> Σ Nat (λ x -> (n ≤ x) × isPrime x)
 infinitePrimes  0             = (2 , ((z≤n 2) , 2IsPrime))
@@ -235,7 +228,10 @@ infinitePrimes (suc (suc n)) = let
                        list      = car list+ev
                        listEv    = cdr list+ev
                        listProd  = product list
-                       fta       = realFta (1 + listProd) {!!}
+                       fta       = realFta (1 + listProd) (λ 1+prod=1 → (productPrimeList (suc (suc n)))
+                                                             (trans (sym (a+c-c=a listProd 1))
+                                                             (trans (cong (_- 1) (comm+ listProd 1))
+                                                                    (cong (_- 1) 1+prod=1))))
                        prime     = car fta
                        evidence  = cdr fta
                        p|n       = snd $ evidence

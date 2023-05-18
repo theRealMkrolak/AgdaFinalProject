@@ -57,18 +57,18 @@ isIn E e list = Σ (List E) (λ fr → Σ (List E) (λ bk → (list ≡ concat f
 notInNil : {A : Set} → (a : A) → isIn A a [] → ⊥
 notInNil a inNil = concatNotNil (car inNil) a (car (cdr inNil)) (sym $ cdr (cdr inNil))
 
-stupid : {A : Set} → (a b : A) → (as bs : List A) → a :: as ≡ b :: bs → a ≡ b
-stupid a b as bs refl = refl
+stupid : {A : Set} → {a b : A} → {as bs : List A} → a :: as ≡ b :: bs → a ≡ b
+stupid refl = refl
 
-notHeadThenInRest : {A : Set} → (list : List A) → (a b : A) → (isIn A a (b :: list) × (a ≡ b → ⊥)) → isIn A a list
-notHeadThenInRest list a b (inBList , aNotb) = tail frBList , (bkBList , trans (cong tail eq) tailConcatEq)
+notHeadThenInRest : {A : Set} {list : List A} → (a b : A) → (isIn A a (b :: list) × (a ≡ b → ⊥)) → isIn A a list
+notHeadThenInRest a b (inBList , aNotb) = tail frBList , (bkBList , trans (cong tail eq) tailConcatEq)
   where
     frBList = car inBList
     bkBList = car (cdr inBList)
     eq = cdr (cdr inBList)
-    frBListNotNil = λ frBListNil → aNotb (sym $ stupid b a list bkBList (trans eq $ trans (cong (λ x → concat x (a :: bkBList)) frBListNil) (nilConcat (a :: bkBList))))
+    frBListNotNil = λ frBListNil → aNotb (sym $ stupid (trans eq $ trans (cong (λ x → concat x (a :: bkBList)) frBListNil) (nilConcat (a :: bkBList))))
     tailConcatEq = tailConcat=ConcatTail frBList (a :: bkBList) frBListNotNil
 -- if you know a is in a list, but it's not equal to the head, then it's in the tail                                                            
 
 singletonIsItself : {A : Set} → (a b : A) → dec= A → isIn A a (b :: []) → a ≡ b
-singletonIsItself a b decA inBList = cases (decA a b) id (λ a!=b → absurd $ notInNil a (notHeadThenInRest [] a b (inBList , a!=b)))
+singletonIsItself a b decA inBList = cases (decA a b) id (λ a!=b → absurd $ notInNil a (notHeadThenInRest a b (inBList , a!=b)))
