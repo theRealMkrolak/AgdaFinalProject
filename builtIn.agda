@@ -9,7 +9,7 @@ absurd ()
 -- Products
 data _×_ (A B : Set) : Set where
  _,_ : A → B → A × B
- 
+
 infixr 4 _,_
 
 fst : {A B : Set} → A × B → A
@@ -73,10 +73,6 @@ zero    + y = y
 (suc x) + y = suc (x + y)
 
 _-_ : Nat → Nat → Nat
-<<<<<<< HEAD
-=======
-0 - y = 0
->>>>>>> d4432f22241dfe8332fcb41ed8038e693ba42f8b
 x - 0 = x
 0 - (suc y) = 0
 (suc x) - (suc y) = x - y
@@ -88,9 +84,9 @@ infixr 5 _*_
 
 
 data _≤_ : Nat → Nat → Set where
-  z≤n : (n : Nat) → zero ≤ n 
+  z≤n : (n : Nat) → zero ≤ n
   s≤s : (m n : Nat) → m ≤ n → (suc m) ≤ (suc n)
-  
+
 +Id : (x y : Nat) → suc (x + y) ≡ (suc x) + y
 +Id x y = sym (
   begin

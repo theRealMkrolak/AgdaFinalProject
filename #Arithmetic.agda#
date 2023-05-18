@@ -237,7 +237,7 @@ a≤b->sa≤sb (suc m) (suc n) (s≤s m n a≤b) = s≤s (suc m) (suc n) (s≤s 
 
 
 aInRangeB : (a b : Nat) → a ≤ b → isIn Nat a (range b)
-aInRangeB a b a≤b = ?
+aInRangeB a b a≤b = {!!}
 
 only≤Divides : (a b : Nat) → (b ≡ 0 → ⊥) → (a ≡ b → ⊥) × (b ≤ a) → a div b → ⊥
 only≤Divides a b b!=0 (a!=b , b≤a) a|b = a!=b $ ≤and≥then= a b (a≤b , b≤a)
