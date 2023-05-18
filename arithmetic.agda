@@ -260,8 +260,8 @@ times0is0 a c c=0 = trans (cong (a *_) c=0) $ n*0=0 a
 ≤and≥then= (suc a) 0 (Sa≤0 , 0≤Sa) = sym $ ≤and≥then= 0 (suc a) (0≤Sa , Sa≤0)
 ≤and≥then= (suc a) (suc b) (s≤s a b a≤b , s≤s b a b≤a) = cong suc $ ≤and≥then= a b (a≤b , b≤a)
 
-sa=sb->a=b : (a b : Nat) → (suc a) ≡ (suc b) → a ≡ b
-sa=sb->a=b a b sa=sb = cong sub1 sa=sb
+Sa=Sb->a=b : (a b : Nat) → (suc a) ≡ (suc b) → a ≡ b
+Sa=Sb->a=b a b sa=sb = cong sub1 sa=sb
 
 a≤b->Sa≤Sb : (a b : Nat) → a ≤ b → (suc a) ≤ (suc b)
 a≤b->Sa≤Sb 0 b (z≤n b) = s≤s 0 b (z≤n b)
@@ -300,10 +300,10 @@ a≤b->Sa≤Sb (suc m) (suc n) (s≤s m n a≤b) = s≤s (suc m) (suc n) (s≤s 
 ≤Product : (a b c : Nat) → (c ≡ 0 → ⊥) × (a ≡ b) → a ≤ (b * c)
 ≤Product a b 0 (c!=0 , a=b) = (absurd (c!=0 refl))
 ≤Product 0 0 c (c!=0 , a=b) = z≤n (0 * c)
-≤Product (suc a) (suc b) c (c!=0 , sa=sb) =
+≤Product (suc a) (suc b) c (c!=0 , Sa=Sb) =
   ≤Trans
     (suc a) (suc (b * c)) ((suc b) * c) 
-    (a≤b->Sa≤Sb a (b * c) (≤Product a b c (c!=0 , (sa=sb->a=b a b sa=sb))))
+    (a≤b->Sa≤Sb a (b * c) (≤Product a b c (c!=0 , (Sa=Sb->a=b a b Sa=Sb))))
     (≤Product-help b c c!=0)
 
 aInRangeB : (a b : Nat) → a ≤ b → isIn Nat a (range b)
@@ -325,10 +325,10 @@ a≤Sa (suc a) = s≤s a (suc a) (a≤Sa a)
 aDiv1=>a=1 : (a : Nat) → (a div 1) → (a ≡ 1)
 aDiv1=>a=1 0 0|1 = absurd $ 0not1 (sym $ only0Divides0 1 0|1)
 aDiv1=>a=1 1 1|1 = refl
-aDiv1=>a=1 (suc (suc a)) ssa|1 = absurd $ only≤Divides (suc (suc a)) 1 1not0 (ssa!=1 , 1≤ssa) ssa|1
+aDiv1=>a=1 (suc (suc a)) SSa|1 = absurd $ only≤Divides (suc (suc a)) 1 1not0 (SSa!=1 , 1≤SSa) SSa|1
   where
-    ssa!=1 = λ ssa=1 → Sn!=0 a (cong sub1 ssa=1)
-    1≤ssa = ≤Trans 1 (suc a) (suc (suc a)) (s≤s 0 a (z≤n a)) (a≤Sa (suc a))
+    SSa!=1 = λ SSa=1 → Sn!=0 a (cong sub1 SSa=1)
+    1≤SSa = ≤Trans 1 (suc a) (suc (suc a)) (s≤s 0 a (z≤n a)) (a≤Sa (suc a))
 
 ≤Dec : (a b : Nat) → Either (a ≤ b) (b ≤ a)
 ≤Dec 0       b       = left (z≤n b)
@@ -346,8 +346,8 @@ a≤0=>a=0 (suc a) Sa≤0 = absurd $ 1not≤0 (eqAlso≥ (suc a) 0 1 (Sa≤0 , (
     a=0 = a≤0=>a=0 a a≤0
 
 a≤Sb&a!=Sb=>a≤b : (a b : Nat) → a ≤ (suc b) → (a ≡ (suc b) → ⊥) → a ≤ b
-a≤Sb&a!=Sb=>a≤b 0       b       0≤Sb   0!=Sb   = z≤n b
-a≤Sb&a!=Sb=>a≤b (suc a) 0       Sa≤1   Sa!=1   = absurd $ Sa!=1 (≤and≥then= (suc a) 1 (Sa≤1 , s≤s 0 a (z≤n a)))
+a≤Sb&a!=Sb=>a≤b 0 b 0≤Sb 0!=Sb = z≤n b
+a≤Sb&a!=Sb=>a≤b (suc a) 0 Sa≤1 Sa!=1 = absurd $ Sa!=1 (≤and≥then= (suc a) 1 (Sa≤1 , s≤s 0 a (z≤n a)))
 a≤Sb&a!=Sb=>a≤b (suc a) (suc b) (s≤s a (suc b) a≤Sb) Sa!=SSb = a≤b->Sa≤Sb a b (a≤Sb&a!=Sb=>a≤b a b a≤Sb a!=Sb)
   where
     a!=Sb = λ a=Sb → Sa!=SSb (cong suc a=Sb)

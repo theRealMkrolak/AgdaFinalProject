@@ -8,9 +8,7 @@ isPrime : Nat → Set
 isPrime 1 = ⊥
 isPrime n = (x : Nat) → (x ≡ n → ⊥) × (x div n) → x ≡ 1
 
-
-
-natDec : (a b : Nat) → Either (a ≡ b) (a ≡ b -> ⊥)
+natDec : (a b : Nat) → Either (a ≡ b) (a ≡ b → ⊥)
 natDec 0       0       = left refl
 natDec 0       (suc b) = right $ 0!=Sn b
 natDec (suc a) 0       = right $ Sn!=0 a
@@ -21,34 +19,24 @@ indIsNotInRange : (n m : Nat) → isIn Nat n (range m) × Fin (λ x → n ≡ x 
 indIsNotInRange n 0       (nIsIn0 , body n!=0 end)  = n!=0 $ singletonIsItself n 0 natDec nIsIn0
 indIsNotInRange n (suc m) (nisInm , body n!=m rest) = indIsNotInRange n m (notHeadThenInRest n (suc m) (nisInm , n!=m) , rest)
 
--- Most beautiful code ever written
-divDecHelperLeft : (n p m : Nat) → m + 0 ≡ p → (n * m ≡ p → ⊥) × Fin (λ x → n * x ≡ p → ⊥) m → (n|p : n div p) → car n|p ≤ p → ⊥
-divDecHelperLeft n p m m+0=p (n*m!=p , finNeq) n|p k≤p = indIsNotInRange k m
-  (aInRangeB k m k≤m , finMap (λ n*m!=p k=m → n*m!=p $ trans (cong (n *_) (sym k=m)) n*k=p) (body n*m!=p finNeq))
-  where
-    k = car n|p
-    n*k=p = cdr n|p
-    k≤m = eqAlso≤ k p m (k≤p , sym (trans (+0= m) m+0=p))
-
-divDecHelperRight : (n p m : Nat) → m + 0 ≡ p → (n * m ≡ p → ⊥) → (n|p : n div p) → p ≤ car n|p → ⊥
-divDecHelperRight n p m m+0=p n*m!=p n|p p≤k = cases (natDec k p)
-  (λ k=p → n*m!=p $ trans (cong (n *_) (trans m=p (sym k=p))) n*k=p)
-  (λ k!=p → only≤Divides k p p!=0 (k!=p , p≤k) (n , trans (comm* k n) n*k=p))
-  where
-    k = car n|p
-    n*k=p = cdr n|p
-    m=p = trans (+0= m) m+0=p
-    p!=0 = λ p=0 → n*m!=p $ trans (trans (cong (n *_) $ trans m=p p=0) (n*0=0 n)) (sym p=0)
-
 divDecHelper : (n p q m : Nat) → m + q ≡ p → Either (n * m ≡ p) (n * m ≡ p → ⊥) × Fin (λ x → n * x ≡ p → ⊥) m → Either (n div p) (n div p → ⊥)
-divDecHelper n p q       m m+q=p  (left  n*m=p  , finNeq) = left (m , n*m=p)
+divDecHelper n p q m m+q=p (left  n*m=p  , finNeq) = left (m , n*m=p)
 divDecHelper n p (suc q) m m+Sq=p (right n*m!=p , finNeq) = divDecHelper n p q (suc m) Sm+q=p (nSm=?p , body n*m!=p finNeq)
   where
     Sm+q=p = trans (suc+=+suc m q) m+Sq=p
     nSm=?p = natDec (n * (suc m)) p
-divDecHelper n p 0       m m+0=p  (right n*m!=p , finNeq) = right $ λ n|p → cases (≤Dec (car n|p) p)
-  (divDecHelperLeft n p m m+0=p (n*m!=p , finNeq) n|p)
-  (divDecHelperRight n p m m+0=p n*m!=p n|p)
+divDecHelper n p 0 m m+0=p (right n*m!=p , finNeq) = right $ λ n|p →
+  let
+    k = car n|p
+    n*k=p = cdr n|p
+    m=p = trans (+0= m) m+0=p
+    k≤m = λ k≤p → eqAlso≤ k p m (k≤p , sym (trans (+0= m) m+0=p))
+    p!=0 = λ p=0 → n*m!=p $ trans (trans (cong (n *_) $ trans m=p p=0) (n*0=0 n)) (sym p=0)
+    left = λ k≤p → indIsNotInRange k m (aInRangeB k m (k≤m k≤p) , finMap (λ n*m!=p k=m → n*m!=p $ trans (cong (n *_) (sym k=m)) n*k=p) (body n*m!=p finNeq))
+    right = λ p≤k → cases (natDec k p)
+      (λ k=p → n*m!=p $ trans (cong (n *_) (trans m=p (sym k=p))) n*k=p)
+      (λ k!=p → only≤Divides k p p!=0 (k!=p , p≤k) (n , trans (comm* k n) n*k=p))
+  in cases (≤Dec (car n|p) p) left right
 
 divDec : (n p : Nat) → Either (n div p) (n div p → ⊥)
 divDec n p = divDecHelper n p p 0 refl (natDec (n * 0) p , stop)
@@ -73,7 +61,7 @@ primeDecHelper : (p q m : Nat) -> ((+2 m) + q) ≡ (+2 p)
                                -> Either ((+2 m) div (+2 p)) ((+2 m) div (+2 p) -> ⊥) × Fin (λ x -> Either (+2 x ≡ +2 p) ((+2 x) div (+2 p) -> ⊥)) m
                                -> Either (Fin (λ x -> Either ((+2 x) ≡ (+2 p)) ((+2 x) div (+2 p) -> ⊥))  (suc p)) (isPrime (+2 p) -> ⊥)
 primeDecHelper p (suc q) m  m+q=p (right !m|p , finN-1) = primeDecHelper p q (suc m) (trans (suc+=+suc (+2 m) q) m+q=p) (divDec (suc (+2 m)) (+2 p) , body (right !m|p) finN-1)
-primeDecHelper p (suc q) m  m+q=p (left   m|p , finN-1) = right (λ pIsPrime -> (λ ()) $ pIsPrime (+2 m) (?  , m|p))
+primeDecHelper p (suc q) m  m+q=p (left   m|p , finN-1) = right (λ pIsPrime -> (λ ()) $ pIsPrime (+2 m) ({!!}  , m|p))
 primeDecHelper p 0       m  m+q=p (right !m|p , finN-1) = right (λ pIsPrime -> !m|p (1 , trans (sym (*1= (+2 m)))  (trans (+0= (+2 m)) m+q=p)))
 primeDecHelper p 0       m  m+q=p (left   m|p , finN-1) = left $ replace
                                                                             (cong (sub1) (trans (+0= (+2 m)) m+q=p))
