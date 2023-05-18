@@ -4,7 +4,7 @@ module List where
 open import BuiltIn
 
 data List (E : Set) : Set where
-  []   : List E 
+  []   : List E
   _::_ : E → List E → List E
 infixr 5 _::_
 

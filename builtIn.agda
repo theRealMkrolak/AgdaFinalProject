@@ -78,9 +78,10 @@ x - 0 = x
 (suc x) - (suc y) = x - y
 
 _*_ : Nat → Nat → Nat
-zero    * y = 0
-(suc x) * y = y + (x * y)
+zero  * m = zero
+suc n * m = (n * m) + m
 infixr 5 _*_
+
 
 data _≤_ : Nat → Nat → Set where
   z≤n : (n : Nat) → zero ≤ n 
@@ -138,12 +139,12 @@ indMaybe _ nothing  = nothing
 
 -- Fin
 data Fin (A : Nat → Set): Nat → Set where
-  end  : Fin A 0
+  stop : Fin A 0
   body : {n : Nat} → A n → Fin A n → Fin A (suc n)
 
 finMap : {A B : Nat → Set} {n : Nat} → ({m : Nat} → A m → B m) → Fin A n → Fin B n
 finMap f (body An finN-1) = body (f An) (finMap f finN-1)
-finMap f end = end
+finMap f stop = stop
 
 -- Decideablity
 
