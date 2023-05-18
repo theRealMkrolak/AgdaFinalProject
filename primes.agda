@@ -133,16 +133,20 @@ primeDec (suc (suc n)) = let p = (+2 n) in cases (primeDecHelper n n 0 refl (div
 
 
 
-primeList : (n : Nat) -> Σ (List Nat) (λ l -> (x : Nat)  -> ((x ≤ n) × (isPrime x)) -> (isIn Nat x l))
-primeList 0 = ([] , (λ x x≤nisPrimeX -> let
-                                        x≤n      = fst x≤nisPrimeX
-                                        isPrimeX = snd x≤nisPrimeX
-                                        in
-                                          absurd $ cases (natDec x 0)
+primeList : (n : Nat) -> Σ (List Nat) (λ l -> (x : Nat)  -> ((((x ≤ n) × (isPrime x)) -> (isIn Nat x l)) × ((isIn Nat x l) -> ((x ≤ n) × (isPrime x)))))
+primeList 0 = ([] , λ x -> (
+                           (λ x≤nisPrimeX -> let
+                                             x≤n      = fst x≤nisPrimeX
+                                             isPrimeX = snd x≤nisPrimeX
+                                             in
+                                             absurd $ cases (natDec x 0)
                                                 (λ x=0 -> 0isNotPrime $ replace x=0 (λ y -> isPrime y) isPrimeX)
-                                                (λ x!=0 -> notInNil x $ notHeadThenInRest x 0 (aInRangeB x 0 x≤n , x!=0))))
+                                                (λ x!=0 -> notInNil x $ notHeadThenInRest x 0 (aInRangeB x 0 x≤n , x!=0))) ,
+                           (λ XIsIn -> absurd $ notInNil x XIsIn)))
 primeList (suc n) = let primeListN = primeList n in cases (primeDec (suc n))
-                                                          (λ isPrimeSn -> (((suc n) :: car primeListN)  , (λ x x≤Sn&isPrimeX -> let
+                                                          (λ isPrimeSn -> (((suc n) :: car primeListN)  ,
+                                                                          (λ x ->
+                                                                             ((λ x≤Sn&isPrimeX -> let
                                                                              x≤Sn      = fst x≤Sn&isPrimeX
                                                                              isPrimeX  = snd x≤Sn&isPrimeX
                                                                              in
@@ -152,20 +156,39 @@ primeList (suc n) = let primeListN = primeList n in cases (primeDec (suc n))
                                                                                                 (λ y -> isIn Nat y ((suc n) :: car primeListN))
                                                                                                 ([] , (car primeListN , (concatNil ((suc n) :: car primeListN)))))
                                                                                    (λ x!=Sn -> let
-                                                                                               isInPrimeListN = (cdr primeListN) x ((a≤Sb&a!=Sb=>a≤b x n x≤Sn x!=Sn) , isPrimeX)
+                                                                                               isInPrimeListN = (fst $ cdr primeListN x) ((a≤Sb&a!=Sb=>a≤b x n x≤Sn x!=Sn) , isPrimeX)
                                                                                                crInList       = car isInPrimeListN
                                                                                                cdInList       = cdr isInPrimeListN
                                                                                                crcdInList     = car cdInList
                                                                                                cdcdInList     = cdr cdInList
                                                                                                in
-                                                                                               ((suc n :: crInList) , (crcdInList , cong (λ x -> ((suc n) :: x)) cdcdInList))))))
-                                                          (λ isNotPrimeSn -> (car primeListN , (λ x x≤Sn&isPrimeX -> let
-                                                                             x≤Sn     = fst x≤Sn&isPrimeX
-                                                                             isPrimeX = snd x≤Sn&isPrimeX
-                                                                             in
+                                                                                               ((suc n :: crInList) , (crcdInList , cong (λ x -> ((suc n) :: x)) cdcdInList)))) ,
+                                                                             (λ isInList ->
                                                                              cases (natDec x (suc n))
-                                                                                   (λ x=Sn  -> absurd (isNotPrimeSn $ replace x=Sn (λ y -> isPrime y) isPrimeX))
-                                                                                   (λ x!=Sn -> (cdr primeListN) x ((a≤Sb&a!=Sb=>a≤b x n x≤Sn x!=Sn) , isPrimeX)))))
+                                                                             (λ x=Sn -> replace (sym x=Sn) (λ y -> y ≤ (suc n)) (≤+ 0 0 (suc n) (z≤n 0)) ,
+                                                                                        replace (sym x=Sn) (λ y -> isPrime y) isPrimeSn)
+                                                                             (λ x!=Sn -> let
+                                                                                         isInprimeListN = notHeadThenInRest x (suc n) (isInList , x!=Sn)
+                                                                                         x≤n&isPrimeX = (snd $ cdr primeListN x) isInprimeListN
+                                                                                         x≤n          = fst x≤n&isPrimeX
+                                                                                         isPrimeX     = snd x≤n&isPrimeX
+                                                                                         in
+                                                                                         (≤Trans x n (suc n) x≤n (≤+ 0 1 n (z≤n 1)) , isPrimeX)))))))
+                                                          (λ isNotPrimeSn -> (car primeListN ,
+                                                                             (λ x ->
+                                                                             (λ x≤Sn&isPrimeX -> let
+                                                                                                 x≤Sn     = fst x≤Sn&isPrimeX
+                                                                                                 isPrimeX = snd x≤Sn&isPrimeX
+                                                                                                 in
+                                                                                                 cases (natDec x (suc n))
+                                                                                                 (λ x=Sn  -> absurd (isNotPrimeSn $ replace x=Sn (λ y -> isPrime y) isPrimeX))
+                                                                                                 (λ x!=Sn -> (fst $ cdr primeListN x) ((a≤Sb&a!=Sb=>a≤b x n x≤Sn x!=Sn) , isPrimeX))) ,
+                                                                             (λ isInList ->      let
+                                                                                                 x≤n&isPrimeX = (snd $ cdr primeListN x) isInList
+                                                                                                 x≤n          = fst x≤n&isPrimeX
+                                                                                                 isPrimeX     = snd x≤n&isPrimeX
+                                                                                                 in
+                                                                                                 (≤Trans x n (suc n) x≤n (≤+ 0 1 n (z≤n 1)) , isPrimeX)))))
 
 ftaHelper : (n p : Nat) -> Either (Fin (λ x -> Either (+2 x ≡ +2 n) ((+2 x) div (+2 n) -> ⊥)) (suc p)) (Σ Nat (λ x -> isPrime (+2 x) × ((+2 x) div (+2 n))))
 ftaHelper m 0 = cases (divDec 2 (+2 m))
@@ -233,7 +256,7 @@ infinitePrimes  1             = (2 , ((s≤s 0 1 $ z≤n 1) , 2IsPrime))
 infinitePrimes (suc (suc n)) = let
                        list+ev   = primeList (suc (suc n))
                        list      = car list+ev
-                       listEv    = cdr list+ev
+                       listEv    =  cdr list+ev
                        listProd  = product list
                        fta       = realFta (1 + listProd) {!!}
                        prime     = car fta
@@ -242,7 +265,7 @@ infinitePrimes (suc (suc n)) = let
                        in
                        cases (≤Dec prime (suc (suc n)))
                              (λ p≤n -> let
-                                       pInList  = listEv prime (p≤n , fst evidence)
+                                       pInList  = (fst $ listEv prime) (p≤n , fst evidence)
                                        pInEvd   = (cdr (cdr pInList))
                                        be       = product (car pInList)
                                        en       = product (car $ cdr pInList)
