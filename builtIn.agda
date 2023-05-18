@@ -41,7 +41,7 @@ trans refl refl = refl
 sym : {A : Set} {x y : A} → x ≡ y → y ≡ x
 sym refl = refl
 
-replace : {A : Set} {a b : A} → a ≡ b → (f : A -> Set) → f a → f b
+replace : {A : Set} {a b : A} → a ≡ b → (f : A → Set) → f a → f b
 replace refl f fa = fa
 
 begin_ : {A : Set} → {x y : A} → x ≡ y → x ≡ y
@@ -82,7 +82,6 @@ zero  * m = zero
 suc n * m = (n * m) + m
 infixr 5 _*_
 
-
 data _≤_ : Nat → Nat → Set where
   z≤n : (n : Nat) → zero ≤ n
   s≤s : (m n : Nat) → m ≤ n → (suc m) ≤ (suc n)
@@ -111,7 +110,7 @@ difference (s≤s m n pred≤) = k , eqProof
      end
 
 _div_ : Nat → Nat → Set
-a div b = (Σ Nat (λ n → (a * n) ≡ b))
+a div b = Σ Nat (λ n → (a * n) ≡ b)
 
 0!=Sn : (n : Nat) → 0 ≡ suc n → ⊥
 0!=Sn n ()
@@ -146,10 +145,10 @@ finMap : {A B : Nat → Set} {n : Nat} → ({m : Nat} → A m → B m) → Fin A
 finMap f (body An finN-1) = body (f An) (finMap f finN-1)
 finMap f stop = stop
 
--- Decideablity
+-- Decidability
 
-dec= : (A : Set) -> Set
-dec= A = (a b : A) -> Either (a ≡  b) (a ≡ b -> ⊥)
+dec= : (A : Set) → Set
+dec= A = (a b : A) → Either (a ≡ b) (a ≡ b → ⊥)
 
 -- Miscellaneous
 id : {A : Set} → A → A
