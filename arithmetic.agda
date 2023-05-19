@@ -287,10 +287,16 @@ a≤b->Sa≤Sb (suc m) (suc n) (s≤s m n a≤b) = s≤s (suc m) (suc n) (s≤s 
 ≤Product-help a 0 b!=0 = (absurd (b!=0 refl))
 ≤Product-help 0 (suc b) b!=0 =
   ≤Trans
-    (suc (zero * (suc b))) 1 (1 * (suc b))
-    (s≤s 0 0 (z≤n 0))
-    (s≤s 0 (1 * b) (z≤n (1 * b)))
-≤Product-help (suc a) (suc b) b!=0 = {!!}
+    (suc (zero * (suc b))) 1 (1 * (suc b)) -- a, b, c
+    (s≤s 0 0 (z≤n 0)) -- a ≤ b
+    (s≤s 0 (1 * b) (z≤n (1 * b))) -- b ≤ c
+≤Product-help (suc a) (suc b) b!=0 = ≤Switch (1 + ((suc a) * (suc b)))
+                                             (1 + ((suc a) * (suc b)))
+                                             ((suc b) +  ((suc a) * (suc b)))
+                                             (((suc a) * (suc b)) + (suc b))
+                                             refl
+                                             (comm+ (suc b)  ((suc a) * (suc b)))
+                                             (≤+ 1 (suc b) ((suc a) * (suc b)) (s≤s 0 b (z≤n b)))
 
 ≤Product : (a b c : Nat) → (c ≡ 0 → ⊥) × (a ≡ b) → a ≤ (b * c)
 ≤Product a b 0 (c!=0 , a=b) = (absurd (c!=0 refl))
@@ -301,8 +307,55 @@ a≤b->Sa≤Sb (suc m) (suc n) (s≤s m n a≤b) = s≤s (suc m) (suc n) (s≤s 
     (a≤b->Sa≤Sb a (b * c) (≤Product a b c (c!=0 , (Sa=Sb->a=b a b Sa=Sb))))
     (≤Product-help b c c!=0)
 
+-- aInRangeB
+rangeUpTo : Nat → Nat → List Nat
+rangeUpTo m zero = []
+rangeUpTo m (suc num) = (m + (suc num)) :: rangeUpTo m num
+
+aInRangeBHelp3 : (m n x : Nat) → suc (m + x) ≡ n → range n ≡ concat (rangeUpTo (suc m) x) (suc m :: range m)
+aInRangeBHelp3 m n zero sm+x=n =
+  begin
+    range n
+  =⟨ cong (λ x → range x) (sym sm+x=n) ⟩
+    range (suc (m + zero))
+  =⟨⟩
+    (suc (m + zero)) :: range (m + zero)
+  =⟨ cong (λ x → (suc x) :: range x) (sym (+0= m)) ⟩
+    suc m :: range m
+  =⟨⟩
+    refl
+aInRangeBHelp3 m n (suc x) sm+x=n =
+  begin
+    range n
+  =⟨ cong (λ x → range x) (sym sm+x=n) ⟩
+    range (suc (m + suc x))
+  =⟨⟩
+   (suc (m + suc x)) :: range (m + suc x)
+  =⟨ cong ((suc (m + suc x)) ::_) (aInRangeBHelp3 m (m + suc x) x (suc+=+suc m x)) ⟩
+    suc (m + suc x) :: concat (rangeUpTo (suc m) x) (suc m :: range m)
+ =⟨⟩
+    refl
+
+aInRangeBHelp2 : (b : Nat) → range b ≡ concat (rangeUpTo 0 b) (zero :: [])
+aInRangeBHelp2 zero = refl
+aInRangeBHelp2 (suc b) =
+  begin
+    range (suc b)
+  =⟨⟩
+    suc b :: range b
+  =⟨ cong (suc b ::_) (aInRangeBHelp2 b) ⟩
+    suc b :: concat (rangeUpTo 0 b) (zero :: [])
+  =⟨⟩
+    0 + (suc b)  :: concat (rangeUpTo 0 b) (zero :: [])
+  =⟨⟩
+    refl
+
+aInRangeBHelp1 : (a b : Nat) → Σ Nat (λ k → a + k ≡ b) → isIn Nat a (range b)
+aInRangeBHelp1 zero n (x , x₁) = (rangeUpTo 0 n , ([] , aInRangeBHelp2 n))
+aInRangeBHelp1 (suc m) n (x , x₁) = (rangeUpTo (suc m) x , (range m , aInRangeBHelp3 m n x x₁))
+
 aInRangeB : (a b : Nat) → a ≤ b → isIn Nat a (range b)
-aInRangeB a b a≤b = {!!}
+aInRangeB a b a≤b = aInRangeBHelp1 a b (difference a≤b)
 
 only≤Divides : (a b : Nat) → (b ≡ 0 → ⊥) → (a ≡ b → ⊥) × (b ≤ a) → a div b → ⊥
 only≤Divides a b b!=0 (a!=b , b≤a) a|b = a!=b $ ≤and≥then= a b (a≤b , b≤a)
