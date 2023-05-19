@@ -5,19 +5,17 @@ open import BuiltIn
 open import List
 
 -- Properties of 0 and 1
-
 0not1 : 0 ≡ 1 → ⊥
 0not1 ()
 
 1not0 : 1 ≡ 0 → ⊥
 1not0 ()
 
+sucNot0 : (n : Nat) → suc n ≡ 0 → ⊥
+sucNot0 n ()
+
 +2 : Nat → Nat
 +2 = suc ∘ suc
-
-sub1 : Nat → Nat
-sub1 0 = 0
-sub1 (suc n) = n
 
 +1= : (b : Nat) → suc b ≡ (b + 1)
 +1= 0       = refl
@@ -55,7 +53,6 @@ n*0=0  0       = refl
 n*0=0  (suc n) = cong (_+ 0) $ n*0=0 n
 
 -- +
-
 suc+=+suc : (a b : Nat) → suc (a + b) ≡ (a + (suc b))
 suc+=+suc 0       b = refl
 suc+=+suc (suc a) b = cong suc (suc+=+suc a b)
@@ -107,7 +104,6 @@ assoc-flip a b c =
       (sym (assoc+ b a c))))
 
 -- *
-
 suc-help : (a b : Nat) → b + (a * b) ≡ (suc a) * b
 suc-help a b = sym
   (begin
@@ -216,7 +212,6 @@ assoc* (suc a) b c =
   end
 
 -- Dividing
-
 AllDivide0 : (a : Nat) → a div 0
 AllDivide0 a = 0 , n*0=0 a
 
@@ -244,6 +239,9 @@ divTrans a b c a|b b|c = k * j , eq
 eqAlso≤ : (a b c : Nat) → (a ≤ b) × (b ≡ c) → a ≤ c
 eqAlso≤ a b c (a≤b , b=c) = replace b=c (a ≤_) a≤b
 
+eqAlso≥ : (a b c : Nat) → (a ≤ b) × (a ≡ c) → c ≤ b
+eqAlso≥ a b c (a≤b , a=c) = replace a=c (_≤ b) a≤b
+
 times0is0 : (a c : Nat) → c ≡ 0 → a * c ≡ 0
 times0is0 a c c=0 = trans (cong (a *_) c=0) $ n*0=0 a
 
@@ -257,12 +255,12 @@ times0is0 a c c=0 = trans (cong (a *_) c=0) $ n*0=0 a
 ≤and≥then= (suc a) 0 (Sa≤0 , 0≤Sa) = sym $ ≤and≥then= 0 (suc a) (0≤Sa , Sa≤0)
 ≤and≥then= (suc a) (suc b) (s≤s a b a≤b , s≤s b a b≤a) = cong suc $ ≤and≥then= a b (a≤b , b≤a)
 
-sa=sb->a=b : (a b : Nat) → (suc a) ≡ (suc b) → a ≡ b
-sa=sb->a=b a b sa=sb = cong sub1 sa=sb
+Sa=Sb->a=b : (a b : Nat) → (suc a) ≡ (suc b) → a ≡ b
+Sa=Sb->a=b a b sa=sb = cong sub1 sa=sb
 
-a≤b->sa≤sb : (a b : Nat) → a ≤ b → (suc a) ≤ (suc b)
-a≤b->sa≤sb zero b (z≤n b) = s≤s 0 b (z≤n b)
-a≤b->sa≤sb (suc m) (suc n) (s≤s m n a≤b) = s≤s (suc m) (suc n) (s≤s m n a≤b)
+a≤b->Sa≤Sb : (a b : Nat) → a ≤ b → (suc a) ≤ (suc b)
+a≤b->Sa≤Sb 0 b (z≤n b) = s≤s 0 b (z≤n b)
+a≤b->Sa≤Sb (suc m) (suc n) (s≤s m n a≤b) = s≤s (suc m) (suc n) (s≤s m n a≤b)
 
 ≤Trans : (a b c : Nat) → a ≤ b → b ≤ c → a ≤ c
 ≤Trans zero b c (z≤n b) b≤c = z≤n c
@@ -303,32 +301,33 @@ a≤b->sa≤sb (suc m) (suc n) (s≤s m n a≤b) = s≤s (suc m) (suc n) (s≤s 
 ≤Product : (a b c : Nat) → (c ≡ 0 → ⊥) × (a ≡ b) → a ≤ (b * c)
 ≤Product a b 0 (c!=0 , a=b) = (absurd (c!=0 refl))
 ≤Product 0 0 c (c!=0 , a=b) = z≤n (0 * c)
-≤Product (suc a) (suc b) c (c!=0 , sa=sb) =
-  (≤Trans
-    (suc a) (suc (b * c)) ((suc b) * c) -- a, b, c
-    (a≤b->sa≤sb a (b * c) (≤Product a b c (c!=0 , (sa=sb->a=b a b sa=sb)))) -- a ≤ b
-    (≤Product-help b c c!=0)) -- b ≤ c=
+≤Product (suc a) (suc b) c (c!=0 , Sa=Sb) =
+  ≤Trans
+    (suc a) (suc (b * c)) ((suc b) * c) 
+    (a≤b->Sa≤Sb a (b * c) (≤Product a b c (c!=0 , (Sa=Sb->a=b a b Sa=Sb))))
+    (≤Product-help b c c!=0)
 
-rangeUpTo : Nat -> Nat -> List Nat
+-- aInRangeB
+rangeUpTo : Nat → Nat → List Nat
 rangeUpTo m zero = []
 rangeUpTo m (suc num) = (m + (suc num)) :: rangeUpTo m num
 
-aInRangeBHelp3 : (m n x : Nat) -> suc (m + x) ≡ n -> range n ≡ concat (rangeUpTo (suc m) x) (suc m :: range m)
+aInRangeBHelp3 : (m n x : Nat) → suc (m + x) ≡ n → range n ≡ concat (rangeUpTo (suc m) x) (suc m :: range m)
 aInRangeBHelp3 m n zero sm+x=n =
   begin
     range n
-  =⟨ cong (λ x -> range x) (sym sm+x=n) ⟩
+  =⟨ cong (λ x → range x) (sym sm+x=n) ⟩
     range (suc (m + zero))
   =⟨⟩
     (suc (m + zero)) :: range (m + zero)
-  =⟨ cong (λ x -> (suc x) :: range x) (sym (+0= m)) ⟩
+  =⟨ cong (λ x → (suc x) :: range x) (sym (+0= m)) ⟩
     suc m :: range m
   =⟨⟩
     refl
 aInRangeBHelp3 m n (suc x) sm+x=n =
   begin
     range n
-  =⟨ cong (λ x -> range x) (sym sm+x=n) ⟩
+  =⟨ cong (λ x → range x) (sym sm+x=n) ⟩
     range (suc (m + suc x))
   =⟨⟩
    (suc (m + suc x)) :: range (m + suc x)
@@ -337,7 +336,7 @@ aInRangeBHelp3 m n (suc x) sm+x=n =
  =⟨⟩
     refl
 
-aInRangeBHelp2 : (b : Nat) -> range b ≡ concat (rangeUpTo 0 b) (zero :: [])
+aInRangeBHelp2 : (b : Nat) → range b ≡ concat (rangeUpTo 0 b) (zero :: [])
 aInRangeBHelp2 zero = refl
 aInRangeBHelp2 (suc b) =
   begin
@@ -353,7 +352,7 @@ aInRangeBHelp2 (suc b) =
 
 aInRangeBHelp1 : (a b : Nat) → Σ Nat (λ k → a + k ≡ b) → isIn Nat a (range b)
 aInRangeBHelp1 zero n (x , x₁) = (rangeUpTo 0 n , ([] , aInRangeBHelp2 n))
-aInRangeBHelp1 (suc m) n (x , x₁) = (rangeUpTo (suc m) x ,(range m , aInRangeBHelp3 m n x x₁ ))
+aInRangeBHelp1 (suc m) n (x , x₁) = (rangeUpTo (suc m) x , (range m , aInRangeBHelp3 m n x x₁))
 
 aInRangeB : (a b : Nat) → a ≤ b → isIn Nat a (range b)
 aInRangeB a b a≤b = aInRangeBHelp1 a b (difference a≤b)
@@ -367,28 +366,63 @@ only≤Divides a b b!=0 (a!=b , b≤a) a|b = a!=b $ ≤and≥then= a b (a≤b , 
     a≤ak = ≤Product a a k (k!=0 , refl)
     a≤b = eqAlso≤ a (a * k) b (a≤ak , ak=b)
 
-a≤sa : (a : Nat) → a ≤ suc a
-a≤sa 0 = z≤n 1
-a≤sa (suc a) = s≤s a (suc a) (a≤sa a)
+a≤Sa : (a : Nat) → a ≤ suc a
+a≤Sa 0 = z≤n 1
+a≤Sa (suc a) = s≤s a (suc a) (a≤Sa a)
 
 aDiv1=>a=1 : (a : Nat) → (a div 1) → (a ≡ 1)
 aDiv1=>a=1 0 0|1 = absurd $ 0not1 (sym $ only0Divides0 1 0|1)
 aDiv1=>a=1 1 1|1 = refl
-aDiv1=>a=1 (suc (suc a)) ssa|1 = absurd $ only≤Divides (suc (suc a)) 1 1not0 (ssa!=1 , 1≤ssa) ssa|1
+aDiv1=>a=1 (suc (suc a)) SSa|1 = absurd $ only≤Divides (suc (suc a)) 1 1not0 (SSa!=1 , 1≤SSa) SSa|1
   where
-    ssa!=1 = λ ssa=1 → Sn!=0 a (cong sub1 ssa=1)
-    1≤ssa = ≤Trans 1 (suc a) (suc (suc a)) (s≤s 0 a (z≤n a)) (a≤sa (suc a))
+    SSa!=1 = λ SSa=1 → Sn!=0 a (cong sub1 SSa=1)
+    1≤SSa = ≤Trans 1 (suc a) (suc (suc a)) (s≤s 0 a (z≤n a)) (a≤Sa (suc a))
 
 ≤Dec : (a b : Nat) → Either (a ≤ b) (b ≤ a)
 ≤Dec 0       b       = left (z≤n b)
 ≤Dec a       0       = right (z≤n a)
 ≤Dec (suc a) (suc b) = cases (≤Dec a b) (left ∘ s≤s a b) (right ∘ s≤s b a)
 
+1not≤0 : 1 ≤ 0 → ⊥
+1not≤0 ()
+
+a≤0=>a=0 : (a : Nat) → a ≤ 0 → a ≡ 0
+a≤0=>a=0 0 _ = refl
+a≤0=>a=0 (suc a) Sa≤0 = absurd $ 1not≤0 (eqAlso≥ (suc a) 0 1 (Sa≤0 , (cong suc a=0)))
+  where
+    a≤0 = ≤Trans a (suc a) 0 (a≤Sa a) Sa≤0
+    a=0 = a≤0=>a=0 a a≤0
+
 a≤Sb&a!=Sb=>a≤b : (a b : Nat) → a ≤ (suc b) → (a ≡ (suc b) → ⊥) → a ≤ b
-a≤Sb&a!=Sb=>a≤b a b a≤Sb a!=Sb = {!!}
+a≤Sb&a!=Sb=>a≤b 0 b 0≤Sb 0!=Sb = z≤n b
+a≤Sb&a!=Sb=>a≤b (suc a) 0 Sa≤1 Sa!=1 = absurd $ Sa!=1 (≤and≥then= (suc a) 1 (Sa≤1 , s≤s 0 a (z≤n a)))
+a≤Sb&a!=Sb=>a≤b (suc a) (suc b) (s≤s a (suc b) a≤Sb) Sa!=SSb = a≤b->Sa≤Sb a b (a≤Sb&a!=Sb=>a≤b a b a≤Sb a!=Sb)
+  where
+    a!=Sb = λ a=Sb → Sa!=SSb (cong suc a=Sb)
+
+!0≥1 : (n : Nat) → (n ≡ 0 → ⊥) → 1 ≤ n
+!0≥1 0 n!=0 = absurd $ n!=0 refl
+!0≥1 (suc n) Sn!=0 = s≤s 0 n (z≤n n)
+
+≥1!0 : (n : Nat) → 1 ≤ n → n ≡ 0 → ⊥
+≥1!0 0 1≤n n=0 = 1not≤0 1≤n
+≥1!0 (suc n) 1≤Sn Sn=0 = sucNot0 n Sn=0
+
+a*b!=0 : (a b : Nat) → (a ≡ 0 → ⊥) × (b ≡ 0 → ⊥) → a * b ≡ 0 → ⊥
+a*b!=0 0 b (a!=0 , b!=0) = absurd $ a!=0 refl
+a*b!=0 (suc a) b (Sa!=0 , b!=0) Sa*b=0 = cases (natDec a 0)
+                                         (λ a=0 → b!=0 $ sym (trans (sym Sa*b=0) (cong (λ k → (suc k) * b) a=0)))
+                                         (λ a!=0 → let
+                                                   a*b = a * b
+                                                   1≤a*b = !0≥1 a*b (a*b!=0 a b (a!=0 , b!=0))
+                                                   Sa*b = (suc a) * b
+                                                   a*b≤Sa*b = ≤Switch (0 + a*b) a*b (b + a*b) Sa*b
+                                                              (trans (comm+ 0 a*b) (sym (+0= a*b)))
+                                                              (suc-help a b) (≤+ 0 b a*b (z≤n b))
+                                                   1≤Sa*b = ≤Trans 1 a*b Sa*b 1≤a*b a*b≤Sa*b
+                                                   in (≥1!0 Sa*b 1≤Sa*b) Sa*b=0)
 
 -- Monus
-
 c-c=0 : (c : Nat) → (c - c) ≡ 0
 c-c=0 0 = refl
 c-c=0 (suc c) =
@@ -400,7 +434,7 @@ c-c=0 (suc c) =
     0
   end
 
-a+c-c=a : (a c :  Nat) → (a + c) - c ≡ a
+a+c-c=a : (a c : Nat) → (a + c) - c ≡ a
 a+c-c=a a 0 =
   begin
     (a + 0) - 0
@@ -412,11 +446,11 @@ a+c-c=a a 0 =
 a+c-c=a a (suc c) =
   begin
     (a + suc c) - (suc c)
-  =⟨ cong (λ x → x - (suc c)) (comm+ a (suc c)) ⟩
+  =⟨ cong (_- (suc c)) (comm+ a (suc c)) ⟩
     (suc c + a) - (suc c)
   =⟨⟩
     suc (c + a) - (suc c)
-  =⟨ cong (λ x → suc x - (suc c)) (comm+ c a)  ⟩
+  =⟨ cong (λ x → suc x - (suc c)) (comm+ c a) ⟩
     suc (a + c) - (suc c)
   =⟨⟩
     (a + c) - c
@@ -498,7 +532,6 @@ sca-sba a (suc b) (suc c) =
   end
 
 -- Misc.
-
 a*c-a*b=a*c-b : (a b c : Nat) → (a * c) - (a * b) ≡ (a * (c - b))
 a*c-a*b=a*c-b a 0 0 =
   begin
