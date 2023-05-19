@@ -150,7 +150,7 @@ primeList (suc n) = let primeListN = primeList n
                                                                                 isPrimeX     = snd x≤n&isPrimeX
                                                                                 in (≤Trans x n (suc n) x≤n (≤+ 0 1 n (z≤n 1)) , isPrimeX)))))
 
--- Fundamental theorem of algebra
+-- Fundamental theorem of arithmetic: every number has a prime factor
 ftaHelper : (n p : Nat) → Either (Fin (λ x → Either (+2 x ≡ +2 n) ((+2 x) div (+2 n) → ⊥)) (suc p)) (Σ Nat (λ x → isPrime (+2 x) × ((+2 x) div (+2 n))))
 ftaHelper m 0 = cases (divDec 2 (+2 m))
                       (λ 2|n → right (0 , (2IsPrime , 2|n)))
