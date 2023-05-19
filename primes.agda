@@ -69,14 +69,11 @@ divDec n p = divDecHelper n p p 0 refl (natDec (n * 0) p , stop)
 
 -- Laura stopped about here
 
-primeDecHelperLemma : (m q p : Nat) -> (q ≡ 0 -> ⊥) -> (m + q ≡ p) -> m ≡ p -> ⊥
-primeDecHelperLemma m q p q!=0 m+q=p refl = q!=0 $ trans (trans (sym $ a+c-c=a q m) (cong (λ x -> x - m) $ trans (comm+ q m) m+q=p)) (c-c=0 p)
-
 primeDecHelper : (p q m : Nat) -> ((+2 m) + q) ≡ (+2 p)
                                -> Either ((+2 m) div (+2 p)) ((+2 m) div (+2 p) -> ⊥) × Fin (λ x -> Either (+2 x ≡ +2 p) ((+2 x) div (+2 p) -> ⊥)) m
                                -> Either (Fin (λ x -> Either ((+2 x) ≡ (+2 p)) ((+2 x) div (+2 p) -> ⊥))  (suc p)) (isPrime (+2 p) -> ⊥)
 primeDecHelper p (suc q) m  m+q=p (right !m|p , finN-1) = primeDecHelper p q (suc m) (trans (suc+=+suc (+2 m) q) m+q=p) (divDec (suc (+2 m)) (+2 p) , body (right !m|p) finN-1)
-primeDecHelper p (suc q) m  m+q=p (left   m|p , finN-1) = right (λ pIsPrime -> (λ ()) $ pIsPrime (+2 m) (primeDecHelperLemma (+2 m) (suc q) (+2 p) (Sn!=0 q) m+q=p  , m|p))
+primeDecHelper p (suc q) m  m+q=p (left   m|p , finN-1) = right (λ pIsPrime -> (λ ()) $ pIsPrime (+2 m) (?  , m|p))
 primeDecHelper p 0       m  m+q=p (right !m|p , finN-1) = right (λ pIsPrime -> !m|p (1 , trans (sym (*1= (+2 m)))  (trans (+0= (+2 m)) m+q=p)))
 primeDecHelper p 0       m  m+q=p (left   m|p , finN-1) = left $ replace
                                                                             (cong (sub1) (trans (+0= (+2 m)) m+q=p))
