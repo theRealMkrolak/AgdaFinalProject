@@ -11,6 +11,9 @@ open import List
 1not0 : 1 ≡ 0 → ⊥
 1not0 ()
 
+sucNot0 : (n : Nat) → suc n ≡ 0 → ⊥
+sucNot0 n ()
+
 +2 : Nat → Nat
 +2 = suc ∘ suc
 
@@ -360,7 +363,7 @@ c-c=0 (suc c) =
     0
   end
 
-a+c-c=a : (a c :  Nat) → (a + c) - c ≡ a
+a+c-c=a : (a c : Nat) → (a + c) - c ≡ a
 a+c-c=a a 0 =
   begin
     (a + 0) - 0

@@ -194,18 +194,6 @@ realFta 0             neq1 = (2 , (2IsPrime , AllDivide0 2))
 realFta 1             neq1 = absurd $ neq1 refl
 realFta (suc (suc n)) neq1 = fta n
 
--- infinitePrimesHelper
--- go down same way as primeDec helper
--- issue is that we need to show that b!=1 a*b=e c*b=e+1 -> False
--- 1+a*b=c*b
--- b * (a - c) = 1
--- only le divides
--- b!=0 because b is prime
--- b=1
--- contradiction
--- c!=0
---
-
 product : List Nat -> Nat
 product [] = 1
 product (l :: ls) = l * (product ls)
@@ -218,8 +206,46 @@ productLemma list [] en p eq =  let
                                 trans 1*ped=ped  p*ed=list
 productLemma (l :: ls) (b :: be) en p refl =  trans (sym $ assoc* l (product be) (p * product en)) (cong (λ x -> b * x) $ productLemma ls be en p refl)
 
--- Infinitely many primes
+!0≥1 : (n : Nat) → (n ≡ 0 → ⊥) → 1 ≤ n
+!0≥1 0 n!=0 = absurd $ n!=0 refl
+!0≥1 (suc n) Sn!=0 = s≤s 0 n (z≤n n)
 
+≥1!0 : (n : Nat) → 1 ≤ n → n ≡ 0 → ⊥
+≥1!0 0 1≤n n=0 = 1not≤0 1≤n
+≥1!0 (suc n) 1≤Sn Sn=0 = sucNot0 n Sn=0 
+
+a*b!=0 : (a b : Nat) → (a ≡ 0 → ⊥) × (b ≡ 0 → ⊥) → a * b ≡ 0 → ⊥
+a*b!=0 0 b (a!=0 , b!=0) = absurd $ a!=0 refl
+a*b!=0 (suc a) b (Sa!=0 , b!=0) Sa*b=0 = cases (natDec a 0)
+                                         (λ a=0 → b!=0 $ sym (trans (sym Sa*b=0) (cong (λ k → (suc k) * b) a=0)))
+                                         (λ a!=0 → let
+                                                   a*b = a * b
+                                                   1≤a*b = !0≥1 a*b (a*b!=0 a b (a!=0 , b!=0))
+                                                   Sa*b = (suc a) * b
+                                                   a*b≤Sa*b = ≤Switch (0 + a*b) a*b (b + a*b) Sa*b
+                                                              (trans (comm+ 0 a*b) (sym (+0= a*b)))
+                                                              (suc-help a b) (≤+ 0 b a*b (z≤n b))
+                                                   1≤Sa*b = ≤Trans 1 a*b Sa*b 1≤a*b a*b≤Sa*b
+                                                   in (≥1!0 Sa*b 1≤Sa*b) Sa*b=0)
+
+prodList!=0 : (list : List Nat) → ((x : Nat) → (isIn Nat x list) → x ≡ 0 → ⊥) → product list ≡ 0 → ⊥
+prodList!=0 [] _ = 1not0
+prodList!=0 (x :: xs) listNot0 = a*b!=0 x (product xs) (listNot0 x xInList , prodList!=0 xs xsNot0)
+  where
+    xInList = [] , (xs , sym (concatNil (x :: xs)))
+    xsNot0 = λ k kInxs →
+               let fr = car kInxs
+                   bk = car (cdr kInxs)
+                   frkbk = cdr (cdr kInxs)
+               in listNot0 k (x :: fr , (bk , cong (x ::_) frkbk))
+
+primeNot0 : (n : Nat) → (isPrime n) → n ≡ 0 → ⊥
+primeNot0 n nPrime n=0 = 0isNotPrime $ replace n=0 isPrime nPrime
+
+-- Infinitely many primes
+infinitePrimesLemma : (n : Nat) → product (car (primeList n)) ≡ 0 → ⊥
+infinitePrimesLemma n = let list = car (primeList n) in
+                        prodList!=0 list (λ x isInList → primeNot0 x (snd ((snd ((cdr (primeList n)) x)) isInList)))
 
 infinitePrimes : (n : Nat) -> Σ Nat (λ x -> (n ≤ x) × isPrime x)
 infinitePrimes  0             = (2 , ((z≤n 2) , 2IsPrime))
@@ -229,7 +255,9 @@ infinitePrimes (suc (suc n)) = let
                        list      = car list+ev
                        listEv    =  cdr list+ev
                        listProd  = product list
-                       fta       = realFta (1 + listProd) {!!}
+                       prodNot0  = infinitePrimesLemma (suc (suc n))
+                       prod      = product (car (primeList (suc (suc n))))
+                       fta       = realFta (1 + listProd) (λ 1+prod=1 → prodNot0 $ trans (sym (a+c-c=a prod 1)) (cong (_- 1) (trans (comm+ prod 1) 1+prod=1)))
                        prime     = car fta
                        evidence  = cdr fta
                        p|n       = snd $ evidence
