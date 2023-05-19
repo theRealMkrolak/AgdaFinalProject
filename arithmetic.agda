@@ -292,7 +292,13 @@ a≤b->sa≤sb (suc m) (suc n) (s≤s m n a≤b) = s≤s (suc m) (suc n) (s≤s 
     (suc (zero * (suc b))) 1 (1 * (suc b)) -- a, b, c
     (s≤s 0 0 (z≤n 0)) -- a ≤ b
     (s≤s 0 (1 * b) (z≤n (1 * b))) -- b ≤ c
-≤Product-help (suc a) (suc b) b!=0 = {!!}
+≤Product-help (suc a) (suc b) b!=0 = ≤Switch (1 + ((suc a) * (suc b)))
+                                             (1 + ((suc a) * (suc b)))
+                                             ((suc b) +  ((suc a) * (suc b)))
+                                             (((suc a) * (suc b)) + (suc b))
+                                             refl
+                                             (comm+ (suc b)  ((suc a) * (suc b)))
+                                             (≤+ 1 (suc b) ((suc a) * (suc b)) (s≤s 0 b (z≤n b)))
 
 ≤Product : (a b c : Nat) → (c ≡ 0 → ⊥) × (a ≡ b) → a ≤ (b * c)
 ≤Product a b 0 (c!=0 , a=b) = (absurd (c!=0 refl))
@@ -303,8 +309,95 @@ a≤b->sa≤sb (suc m) (suc n) (s≤s m n a≤b) = s≤s (suc m) (suc n) (s≤s 
     (a≤b->sa≤sb a (b * c) (≤Product a b c (c!=0 , (sa=sb->a=b a b sa=sb)))) -- a ≤ b
     (≤Product-help b c c!=0)) -- b ≤ c=
 
+rangeUpTo : Nat -> Nat -> List Nat
+rangeUpTo m zero = []
+rangeUpTo m (suc num) = (m + (suc num)) :: rangeUpTo m num
+
+x-0=x : (x : Nat) -> x - 0 ≡ x
+x-0=x  zero = refl
+x-0=x (suc x) = refl
+
+aInRangeBHelp4 : (n : Nat) ->  suc (suc n) :: concat (rangeUpTo 1 n) (1 :: 0 :: []) ≡  concat (rangeUpTo 2 (n - zero)) (2 :: 1 :: 0 :: [])
+aInRangeBHelp4 zero = refl
+aInRangeBHelp4 (suc n) =
+  begin
+     suc (suc (suc n)) :: concat (rangeUpTo 1 (suc n)) (1 :: 0 :: [])
+  =⟨⟩
+     suc (suc (suc n)) :: concat ((1 + (suc n)) :: (rangeUpTo 1 n)) (1 :: 0 :: [])
+  =⟨⟩
+     suc (suc (suc n)) :: concat ((suc (suc n)) :: (rangeUpTo 1 n)) (1 :: 0 :: [])
+  =⟨⟩
+     suc (suc (suc n)) :: (suc (suc n)) :: concat ((rangeUpTo 1 n)) (1 :: 0 :: [])
+  =⟨ cong (suc (suc (suc n)) ::_) (aInRangeBHelp4 n)⟩
+     suc (suc (suc n)) :: concat (rangeUpTo 2 (n - zero)) (2 :: 1 :: 0 :: [])
+  =⟨ cong (λ x ->  suc (suc (suc n)) :: concat (rangeUpTo 2 x) (2 :: 1 :: 0 :: [])) (x-0=x n) ⟩
+     suc (suc (suc n)) :: concat (rangeUpTo 2 n) (2 :: 1 :: 0 :: [])
+  =⟨⟩
+    refl 
+
+aInRangeBHelp3 : (m n : Nat) -> m ≤ n -> suc (suc n) :: concat (rangeUpTo (suc m) (n - m)) (suc m :: range m)  ≡ concat (rangeUpTo (suc (suc m)) (n - m)) (suc (suc m) :: suc m :: range m)
+aInRangeBHelp3 .zero n (z≤n .n) =
+ begin
+    suc (suc n) :: concat (rangeUpTo (suc zero) (n - zero)) (suc zero :: range zero)
+  =⟨⟩
+    suc (suc n) :: concat (rangeUpTo 1 (n - zero)) (1 :: 0 :: [])
+  =⟨ cong (λ x -> suc (suc n) :: concat (rangeUpTo 1 x) (1 :: 0 :: [])) (x-0=x n) ⟩
+    suc (suc n) :: concat (rangeUpTo 1 n) (1 :: 0 :: [])
+  =⟨ aInRangeBHelp4 n ⟩
+    concat (rangeUpTo 2 (n - zero)) (2 :: 1 :: 0 :: [])
+  end
+aInRangeBHelp3 .(suc m) .(suc n) (s≤s m n m≤n) = 
+  begin
+     suc (suc (suc n)) :: concat (rangeUpTo (suc (suc m)) (n -  m)) (suc (suc m) :: range (suc m))
+  =⟨⟩
+    {!!}
+
+aInRangeBHelp2 : (m n : Nat) -> m ≤ n ->  suc n :: range n ≡  concat (rangeUpTo (suc m) (n - m)) (suc m :: range m)
+aInRangeBHelp2 .zero zero (z≤n .zero) = refl
+aInRangeBHelp2 .zero (suc n) (z≤n .(suc n)) =
+ begin
+    suc (suc n) :: range (suc n)
+  =⟨⟩
+    suc (suc n) :: suc n :: range n
+  =⟨ cong (suc (suc n) ::_) (aInRangeBHelp2 zero n (z≤n n)) ⟩
+    suc (suc n) :: concat (rangeUpTo (suc zero) (n - zero)) (suc zero :: range zero)
+  =⟨⟩
+    suc (suc n) :: concat (rangeUpTo 1 (n - zero)) (1 :: range zero)
+  =⟨⟩
+    suc (suc n) :: concat (rangeUpTo 1 (n - 0)) (1 :: 0 :: [])
+  =⟨ cong (λ x -> suc (suc n) :: concat (rangeUpTo 1 x) (1 :: 0 :: [])) (x-0=x n) ⟩
+    suc (suc n) :: concat (rangeUpTo 1 n) (1 :: 0 :: [])
+  end
+aInRangeBHelp2 .(suc m) .(suc n) (s≤s m n m≤n) =
+  begin
+     suc (suc n) :: range (suc n)
+  =⟨⟩
+    suc (suc n) :: suc n :: range n
+  =⟨ cong (suc (suc n) ::_) (aInRangeBHelp2 m n m≤n) ⟩
+   suc (suc n) :: concat (rangeUpTo (suc m) (n - m)) (suc m :: range m)
+  =⟨ aInRangeBHelp3 m n m≤n ⟩
+    concat (rangeUpTo (suc (suc m)) (n - m)) (suc (suc m) :: suc m :: range m)
+  =⟨⟩
+    refl
+
+aInRangeBHelp1 : (b : Nat) -> range b ≡ concat (rangeUpTo 0 b) (zero :: [])
+aInRangeBHelp1 zero = refl
+aInRangeBHelp1 (suc b) =
+  begin
+    range (suc b)
+  =⟨⟩
+    suc b :: range b
+  =⟨ cong (suc b ::_) (aInRangeBHelp1 b) ⟩
+    suc b :: concat (rangeUpTo 0 b) (zero :: [])
+  =⟨⟩
+    0 + (suc b)  :: concat (rangeUpTo 0 b) (zero :: [])
+  =⟨⟩
+    refl
+
 aInRangeB : (a b : Nat) → a ≤ b → isIn Nat a (range b)
-aInRangeB a b a≤b = {!!}
+aInRangeB .zero b (z≤n .b) = (rangeUpTo 0 b , ([] , aInRangeBHelp1 b))
+aInRangeB .(suc m) .(suc n) (s≤s m n m≤n) = (rangeUpTo (suc m) ((suc n) - (suc m)), (range m , aInRangeBHelp2 m n m≤n))
+
 
 only≤Divides : (a b : Nat) → (b ≡ 0 → ⊥) → (a ≡ b → ⊥) × (b ≤ a) → a div b → ⊥
 only≤Divides a b b!=0 (a!=b , b≤a) a|b = a!=b $ ≤and≥then= a b (a≤b , b≤a)
