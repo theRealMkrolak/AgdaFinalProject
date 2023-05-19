@@ -43,34 +43,27 @@ divDec n p = divDecHelper n p p 0 refl (natDec (n * 0) p , stop)
 
 -- Decidability of primes
 0isNotPrime : isPrime 0 → ⊥
-0isNotPrime isPrime0 = (0!=Sn 0 ∘ cong sub1 ∘ sym) $ isPrime0 2 ((0!=Sn 1 ∘ sym) , AllDivide0 2)
+0isNotPrime isPrime0 = (0!=Sn 0 ∘ cong sub1 ∘ sym) $ isPrime0 2 (0!=Sn 1 ∘ sym , AllDivide0 2)
 
---I think this has to do with the fact that nothing fits the criteria so false implies true. So this is most likely due to our definition of primeness.
-1isNotPrime : isPrime 1 -> ⊥
+1isNotPrime : isPrime 1 → ⊥
 1isNotPrime = id
 
---1isPrime : isPrime 1
---1isPrime x (x!=1 , x|1) = absurd $ cases (≤Dec x 1)
---  (λ x≤1 → indIsNotInRange x 1 (aInRangeB x 1 x≤1 ,
---    (body x!=1 (body (λ x=0 → (0!=Sn 0) (sym $ only0Divides0 1 (car x|1 , (trans (sym $ cong (_* car x|1) x=0) (cdr x|1))))) (end)))))
---  (λ 1≤x → only≤Divides x 1  (0!=Sn 0 ∘ sym) (x!=1 , 1≤x) x|1)
+-- 1isPrime : isPrime 1
+-- 1isPrime x (x!=1 , x|1) = absurd $ cases (≤Dec x 1)
+--   (λ x≤1 → indIsNotInRange x 1 (aInRangeB x 1 x≤1 ,
+--     (body x!=1 (body (λ x=0 → (0!=Sn 0) (sym $ only0Divides0 1 (car x|1 , (trans (sym $ cong (_* car x|1) x=0) (cdr x|1))))) (end)))))
+--   (λ 1≤x → only≤Divides x 1  (0!=Sn 0 ∘ sym) (x!=1 , 1≤x) x|1)
 
--- Laura stopped about here
-
-primeDecHelper : (p q m : Nat) -> ((+2 m) + q) ≡ (+2 p)
-                               -> Either ((+2 m) div (+2 p)) ((+2 m) div (+2 p) -> ⊥) × Fin (λ x -> Either (+2 x ≡ +2 p) ((+2 x) div (+2 p) -> ⊥)) m
-                               -> Either (Fin (λ x -> Either ((+2 x) ≡ (+2 p)) ((+2 x) div (+2 p) -> ⊥))  (suc p)) (isPrime (+2 p) -> ⊥)
+primeDecHelper : (p q m : Nat) → (+2 m) + q ≡ +2 p
+                               → Either ((+2 m) div (+2 p)) ((+2 m) div (+2 p) → ⊥) × Fin (λ x → Either (+2 x ≡ +2 p) ((+2 x) div (+2 p) → ⊥)) m
+                               → Either (Fin (λ x → Either (+2 x ≡ +2 p) ((+2 x) div (+2 p) → ⊥)) (suc p)) (isPrime (+2 p) → ⊥)
 primeDecHelper p (suc q) m  m+q=p (right !m|p , finN-1) = primeDecHelper p q (suc m) (trans (suc+=+suc (+2 m) q) m+q=p) (divDec (suc (+2 m)) (+2 p) , body (right !m|p) finN-1)
-primeDecHelper p (suc q) m  m+q=p (left   m|p , finN-1) = right (λ pIsPrime -> (λ ()) $ pIsPrime (+2 m) ({!!}  , m|p))
-primeDecHelper p 0       m  m+q=p (right !m|p , finN-1) = right (λ pIsPrime -> !m|p (1 , trans (sym (*1= (+2 m)))  (trans (+0= (+2 m)) m+q=p)))
+primeDecHelper p (suc q) m  m+q=p (left   m|p , finN-1) = right (λ pIsPrime → (λ ()) $ pIsPrime (+2 m) (a+Sb=c (suc (suc m)) q (suc (suc p)) m+q=p , m|p))
+primeDecHelper p 0       m  m+q=p (right !m|p , finN-1) = right (λ pIsPrime → !m|p (1 , trans (sym (*1= (+2 m))) (trans (+0= (+2 m)) m+q=p)))
 primeDecHelper p 0       m  m+q=p (left   m|p , finN-1) = left $ replace
-                                                                            (cong (sub1) (trans (+0= (+2 m)) m+q=p))
-                                                                            (λ y -> Fin (λ x → Either (+2 x ≡ +2 p) ((+2 x) div (+2 p) → ⊥)) y)
-                                                                            (body (left $ (trans (+0= (+2 m)) m+q=p)) finN-1)
-
--- Ok the strategy here is use only≤Divides for the case where p≤x and then for the other case use aInRageB to get the list of possible entries for a
--- Then because, from fin, that all but 0 and 1 are not possible we can then eliminate those. Thats as far as I got. Look at list for inspiration
-
+                                                                   (cong sub1 (trans (+0= (+2 m)) m+q=p))
+                                                                   (λ y → Fin (λ x → Either (+2 x ≡ +2 p) ((+2 x) div (+2 p) → ⊥)) y)
+                                                                   (body (left $ (trans (+0= (+2 m)) m+q=p)) finN-1)
 
 only1Divides=>isPrimeHelper : (p x n : Nat) -> (x ≡ (+2 p) → ⊥) × (x div (+2 p)) -> (isIn Nat x (range $ +2 n)) -> Fin (λ y -> Either (+2 y ≡ +2 p) ((+2 y) div (+2 p) -> ⊥)) (suc n) -> x ≡ 1
 only1Divides=>isPrimeHelper p x 0       (x!=p , x|p) isInRange2 (body (left n=p)     stop) = cases (natDec x  2)

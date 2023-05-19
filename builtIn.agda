@@ -146,7 +146,6 @@ finMap f (body An finN-1) = body (f An) (finMap f finN-1)
 finMap f stop = stop
 
 -- Decidability
-
 dec= : (A : Set) → Set
 dec= A = (a b : A) → Either (a ≡ b) (a ≡ b → ⊥)
 

@@ -5,7 +5,6 @@ open import BuiltIn
 open import List
 
 -- Properties of 0 and 1
-
 0not1 : 0 ≡ 1 → ⊥
 0not1 ()
 
@@ -55,7 +54,6 @@ n*0=0  0       = refl
 n*0=0  (suc n) = cong (_+ 0) $ n*0=0 n
 
 -- +
-
 suc+=+suc : (a b : Nat) → suc (a + b) ≡ (a + (suc b))
 suc+=+suc 0       b = refl
 suc+=+suc (suc a) b = cong suc (suc+=+suc a b)
@@ -107,7 +105,6 @@ assoc-flip a b c =
       (sym (assoc+ b a c))))
 
 -- *
-
 suc-help : (a b : Nat) → b + (a * b) ≡ (suc a) * b
 suc-help a b = sym
   (begin
@@ -216,7 +213,6 @@ assoc* (suc a) b c =
   end
 
 -- Dividing
-
 AllDivide0 : (a : Nat) → a div 0
 AllDivide0 a = 0 , n*0=0 a
 
@@ -353,7 +349,6 @@ a≤Sb&a!=Sb=>a≤b (suc a) (suc b) (s≤s a (suc b) a≤Sb) Sa!=SSb = a≤b->Sa
     a!=Sb = λ a=Sb → Sa!=SSb (cong suc a=Sb)
 
 -- Monus
-
 c-c=0 : (c : Nat) → (c - c) ≡ 0
 c-c=0 0 = refl
 c-c=0 (suc c) =
@@ -463,7 +458,6 @@ sca-sba a (suc b) (suc c) =
   end
 
 -- Misc.
-
 a*c-a*b=a*c-b : (a b c : Nat) → (a * c) - (a * b) ≡ (a * (c - b))
 a*c-a*b=a*c-b a 0 0 =
   begin
@@ -511,3 +505,14 @@ a*c-a*b=a*c-b a (suc b) (suc c) =
   =⟨ a*c-a*b=a*c-b a b c ⟩
     a * (c - b)
   end
+
+a+Sb=c : (a b c : Nat) → a + (suc b) ≡ c → a ≡ c → ⊥
+a+Sb=c a b c a+Sb=c a=c = Sn!=0
+  (begin
+    (suc b)
+  =⟨⟩
+    (suc b) + a - a
+    
+    
+
+-- a+c-c=a : (a c :  Nat) → (a + c) - c ≡ a
