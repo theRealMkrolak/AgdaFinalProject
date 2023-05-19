@@ -505,14 +505,3 @@ a*c-a*b=a*c-b a (suc b) (suc c) =
   =⟨ a*c-a*b=a*c-b a b c ⟩
     a * (c - b)
   end
-
-a+Sb=c : (a b c : Nat) → a + (suc b) ≡ c → a ≡ c → ⊥
-a+Sb=c a b c a+Sb=c a=c = Sn!=0
-  (begin
-    (suc b)
-  =⟨⟩
-    (suc b) + a - a
-    
-    
-
--- a+c-c=a : (a c :  Nat) → (a + c) - c ≡ a

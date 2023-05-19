@@ -54,123 +54,110 @@ divDec n p = divDecHelper n p p 0 refl (natDec (n * 0) p , stop)
 --     (body x!=1 (body (λ x=0 → (0!=Sn 0) (sym $ only0Divides0 1 (car x|1 , (trans (sym $ cong (_* car x|1) x=0) (cdr x|1))))) (end)))))
 --   (λ 1≤x → only≤Divides x 1  (0!=Sn 0 ∘ sym) (x!=1 , 1≤x) x|1)
 
+primeDecHelperLemma : (m q p : Nat) → (q ≡ 0 → ⊥) → (m + q ≡ p) → m ≡ p → ⊥
+primeDecHelperLemma m q p q!=0 m+q=p refl = q!=0 $ trans (trans (sym $ a+c-c=a q m) (cong (_- m) $ trans (comm+ q m) m+q=p)) (c-c=0 p)
+
 primeDecHelper : (p q m : Nat) → (+2 m) + q ≡ +2 p
                                → Either ((+2 m) div (+2 p)) ((+2 m) div (+2 p) → ⊥) × Fin (λ x → Either (+2 x ≡ +2 p) ((+2 x) div (+2 p) → ⊥)) m
                                → Either (Fin (λ x → Either (+2 x ≡ +2 p) ((+2 x) div (+2 p) → ⊥)) (suc p)) (isPrime (+2 p) → ⊥)
 primeDecHelper p (suc q) m  m+q=p (right !m|p , finN-1) = primeDecHelper p q (suc m) (trans (suc+=+suc (+2 m) q) m+q=p) (divDec (suc (+2 m)) (+2 p) , body (right !m|p) finN-1)
-primeDecHelper p (suc q) m  m+q=p (left   m|p , finN-1) = right (λ pIsPrime → (λ ()) $ pIsPrime (+2 m) (a+Sb=c (suc (suc m)) q (suc (suc p)) m+q=p , m|p))
+primeDecHelper p (suc q) m  m+q=p (left   m|p , finN-1) = right (λ pIsPrime → (λ ()) $ pIsPrime (+2 m) (primeDecHelperLemma (+2 m) (suc q) (+2 p) (Sn!=0 q) m+q=p  , m|p))
 primeDecHelper p 0       m  m+q=p (right !m|p , finN-1) = right (λ pIsPrime → !m|p (1 , trans (sym (*1= (+2 m))) (trans (+0= (+2 m)) m+q=p)))
 primeDecHelper p 0       m  m+q=p (left   m|p , finN-1) = left $ replace
                                                                    (cong sub1 (trans (+0= (+2 m)) m+q=p))
-                                                                   (λ y → Fin (λ x → Either (+2 x ≡ +2 p) ((+2 x) div (+2 p) → ⊥)) y)
+                                                                   (Fin (λ x → Either (+2 x ≡ +2 p) ((+2 x) div (+2 p) → ⊥)))
                                                                    (body (left $ (trans (+0= (+2 m)) m+q=p)) finN-1)
 
-only1Divides=>isPrimeHelper : (p x n : Nat) -> (x ≡ (+2 p) → ⊥) × (x div (+2 p)) -> (isIn Nat x (range $ +2 n)) -> Fin (λ y -> Either (+2 y ≡ +2 p) ((+2 y) div (+2 p) -> ⊥)) (suc n) -> x ≡ 1
-only1Divides=>isPrimeHelper p x 0       (x!=p , x|p) isInRange2 (body (left n=p)     stop) = cases (natDec x  2)
-                                                                                             (λ x=n -> absurd $ (x!=p $ trans x=n n=p))
-                                                                                             (λ x!=n -> cases (natDec x 1)
-                                                                                                              id
-                                                                                                              (λ x!=1 -> absurd $ indIsNotInRange  x 2 (isInRange2 ,
-                                                                                                              (body x!=n
-                                                                                                              (body x!=1
-                                                                                                              (body (λ x=0 -> (Sn!=0 (suc p)) $
-                                                                                                                              only0Divides0
-                                                                                                                              (+2 p)
-                                                                                                                              (replace x=0 (λ y -> y div (+2 p)) x|p)) stop))))))
-only1Divides=>isPrimeHelper p x 0       (x!=p , x|p) isInRange2 (body (right notn|p) stop) = cases (natDec x 2)
-                                                                                             (λ x=n -> absurd $ ((replace (sym x=n) (λ y -> y div (+2 p) -> ⊥) notn|p) x|p))
-                                                                                             (λ x!=n -> cases (natDec x 1)
-                                                                                                              id
-                                                                                                              (λ x!=1 -> absurd $ indIsNotInRange  x 2 (isInRange2 ,
-                                                                                                              (body x!=n
-                                                                                                              (body x!=1
-                                                                                                              (body (λ x=0 -> (Sn!=0 (suc p)) $
-                                                                                                                              only0Divides0
-                                                                                                                              (+2 p)
-                                                                                                                              (replace x=0 (λ y -> y div (+2 p)) x|p)) stop))))))
-                                                                                                              
-only1Divides=>isPrimeHelper p x (suc n) (x!=p , x|p) isInRangeN (body (left  n=p)     fin) = cases (natDec x  (+2 (suc n)))
-                                                                                             (λ x=n -> absurd $ (x!=p $ trans x=n n=p))
-                                                                                             (λ x!=n -> only1Divides=>isPrimeHelper p x n (x!=p , x|p) (notHeadThenInRest x (+2 (suc n)) (isInRangeN , x!=n)) fin)
-only1Divides=>isPrimeHelper p x (suc n) (x!=p , x|p) isInRangeN (body (right notn|p)  fin) = cases (natDec x  (+2 (suc n)))
-                                                                                             (λ x=n -> absurd $ ((replace (sym x=n) (λ y -> y div (+2 p) -> ⊥) notn|p) x|p))
-                                                                                             (λ x!=n -> only1Divides=>isPrimeHelper p x n (x!=p , x|p) (notHeadThenInRest x (+2 (suc n)) (isInRangeN , x!=n)) fin)
+only1Divides=>isPrimeHelper : (p x n : Nat) → (x ≡ (+2 p) → ⊥) × (x div (+2 p)) → (isIn Nat x (range $ +2 n)) → Fin (λ y → Either (+2 y ≡ +2 p) ((+2 y) div (+2 p) → ⊥)) (suc n) → x ≡ 1
+only1Divides=>isPrimeHelper p x 0 (x!=p , x|p) isInRange2 (body (left n=p) stop) = cases (natDec x 2)
+                                                                                   (λ x=n → absurd $ (x!=p $ trans x=n n=p))
+                                                                                   (λ x!=n → cases (natDec x 1) id
+                                                                                             (λ x!=1 -> absurd $ indIsNotInRange x 2 (isInRange2 ,
+                                                                                               (body x!=n
+                                                                                               (body x!=1
+                                                                                               (body (λ x=0 -> (Sn!=0 (suc p)) $
+                                                                                                 only0Divides0 (+2 p) (replace x=0 (_div (+2 p)) x|p)) stop))))))
+only1Divides=>isPrimeHelper p x 0 (x!=p , x|p) isInRange2 (body (right notn|p) stop) = cases (natDec x 2)
+                                                                                       (λ x=n → absurd $ ((replace (sym x=n) (λ y → y div (+2 p) → ⊥) notn|p) x|p))
+                                                                                       (λ x!=n → cases (natDec x 1) id
+                                                                                                 (λ x!=1 → absurd $ indIsNotInRange x 2 (isInRange2 ,
+                                                                                                   (body x!=n
+                                                                                                   (body x!=1
+                                                                                                   (body (λ x=0 → (Sn!=0 (suc p)) $
+                                                                                                     only0Divides0 (+2 p) (replace x=0 (λ y → y div (+2 p)) x|p)) stop))))))            
+only1Divides=>isPrimeHelper p x (suc n) (x!=p , x|p) isInRangeN (body (left  n=p) fin) = cases (natDec x (+2 (suc n)))
+                                                                                         (λ x=n → absurd $ (x!=p $ trans x=n n=p))
+                                                                                         (λ x!=n → only1Divides=>isPrimeHelper p x n (x!=p , x|p)
+                                                                                           (notHeadThenInRest x (+2 (suc n)) (isInRangeN , x!=n)) fin)
+only1Divides=>isPrimeHelper p x (suc n) (x!=p , x|p) isInRangeN (body (right notn|p) fin) = cases (natDec x (+2 (suc n)))
+                                                                                            (λ x=n → absurd $ ((replace (sym x=n) (λ y → y div (+2 p) → ⊥) notn|p) x|p))
+                                                                                            (λ x!=n → only1Divides=>isPrimeHelper p x n (x!=p , x|p)
+                                                                                              (notHeadThenInRest x (+2 (suc n)) (isInRangeN , x!=n)) fin)
 
 
-only1Divides=>isPrime : (p : Nat) -> Fin (λ x -> Either (+2 x ≡ +2 p) ((+2 x) div (+2 p) -> ⊥)) (suc p) -> isPrime (+2 p)
-only1Divides=>isPrime p fin x (x!=p , x|p)  =  cases (≤Dec  x (+2 p))
-                                                     (λ x≤p -> only1Divides=>isPrimeHelper p x p (x!=p , x|p) (aInRangeB x (+2 p) x≤p) fin)
-                                                     (λ p≤x -> absurd $ only≤Divides x (+2 p) ((0!=Sn (suc p)) ∘ sym) (x!=p , p≤x) x|p)
+only1Divides=>isPrime : (p : Nat) → Fin (λ x → Either (+2 x ≡ +2 p) ((+2 x) div (+2 p) → ⊥)) (suc p) → isPrime (+2 p)
+only1Divides=>isPrime p fin x (x!=p , x|p) = cases (≤Dec x (+2 p))
+                                             (λ x≤p → only1Divides=>isPrimeHelper p x p (x!=p , x|p) (aInRangeB x (+2 p) x≤p) fin)
+                                             (λ p≤x → absurd $ only≤Divides x (+2 p) ((0!=Sn (suc p)) ∘ sym) (x!=p , p≤x) x|p)
 
-primeDec : (n : Nat) -> Either (isPrime n) (isPrime n -> ⊥)
+primeDec : (n : Nat) → Either (isPrime n) (isPrime n → ⊥)
 primeDec 0 = right 0isNotPrime
 primeDec 1 = right 1isNotPrime
 primeDec (suc (suc n)) = let p = (+2 n) in cases (primeDecHelper n n 0 refl (divDec (+2 0) (+2 n) , stop))
-                                                 (left  ∘ only1Divides=>isPrime n)
-                                                 (right ∘ id)
+                                           (left ∘ only1Divides=>isPrime n)
+                                           (right ∘ id)
 
 2IsPrime : isPrime 2
 2IsPrime = only1Divides=>isPrime 0 (body (left refl) (stop))
 
+-- Prime list contains exactly the prime Nats ≤ n 
+primeList : (n : Nat) → Σ (List Nat) (λ l → (x : Nat) → ((((x ≤ n) × (isPrime x)) → (isIn Nat x l)) × ((isIn Nat x l) → ((x ≤ n) × (isPrime x)))))
+primeList 0 = ([] , λ x → ((λ x≤nisPrimeX → let x≤n      = fst x≤nisPrimeX
+                                                isPrimeX = snd x≤nisPrimeX
+                                            in absurd $ cases (natDec x 0)
+                                                (λ x=0 → 0isNotPrime $ replace x=0  isPrime isPrimeX)
+                                                (λ x!=0 → notInNil x $ notHeadThenInRest x 0 (aInRangeB x 0 x≤n , x!=0))) ,
+                           (λ XIsIn → absurd $ notInNil x XIsIn)))
+primeList (suc n) = let primeListN = primeList n
+                    in cases (primeDec (suc n))
+                       (λ isPrimeSn → ((suc n :: car primeListN) ,
+                         (λ x → ((λ x≤Sn&isPrimeX → let
+                                                    x≤Sn     = fst x≤Sn&isPrimeX
+                                                    isPrimeX = snd x≤Sn&isPrimeX
+                                                    in cases (natDec x (suc n))
+                                                       (λ x=Sn → replace (sym x=Sn)
+                                                                 (λ y → isIn Nat y ((suc n) :: car primeListN))
+                                                                 ([] , (car primeListN , (concatNil ((suc n) :: car primeListN)))))
+                                                       (λ x!=Sn → let
+                                                                  isInPrimeListN = (fst $ cdr primeListN x) ((a≤Sb&a!=Sb=>a≤b x n x≤Sn x!=Sn) , isPrimeX)
+                                                                  crInList       = car isInPrimeListN
+                                                                  cdInList       = cdr isInPrimeListN
+                                                                  crcdInList     = car cdInList
+                                                                  cdcdInList     = cdr cdInList
+                                                                  in ((suc n :: crInList) , (crcdInList , cong ((suc n) ::_) cdcdInList)))) ,
+                                 (λ isInList → cases (natDec x (suc n))
+                                               (λ x=Sn → replace (sym x=Sn) (_≤ (suc n)) (≤+ 0 0 (suc n) (z≤n 0)) ,
+                                                         replace (sym x=Sn) isPrime isPrimeSn)
+                                               (λ x!=Sn → let
+                                                          isInprimeListN = notHeadThenInRest x (suc n) (isInList , x!=Sn)
+                                                          x≤n&isPrimeX   = (snd $ cdr primeListN x) isInprimeListN
+                                                          x≤n            = fst x≤n&isPrimeX
+                                                          isPrimeX       = snd x≤n&isPrimeX
+                                                          in (≤Trans x n (suc n) x≤n (≤+ 0 1 n (z≤n 1)) , isPrimeX)))))))
+                       (λ isNotPrimeSn → (car primeListN ,
+                         (λ x → (λ x≤Sn&isPrimeX → let
+                                                   x≤Sn     = fst x≤Sn&isPrimeX
+                                                   isPrimeX = snd x≤Sn&isPrimeX
+                                                   in cases (natDec x (suc n))
+                                                      (λ x=Sn → absurd (isNotPrimeSn $ replace x=Sn isPrime isPrimeX))
+                                                      (λ x!=Sn → (fst $ cdr primeListN x) ((a≤Sb&a!=Sb=>a≤b x n x≤Sn x!=Sn) , isPrimeX))) ,
+                                                                  (λ isInList → let
+                                                                                x≤n&isPrimeX = (snd $ cdr primeListN x) isInList
+                                                                                x≤n          = fst x≤n&isPrimeX
+                                                                                isPrimeX     = snd x≤n&isPrimeX
+                                                                                in (≤Trans x n (suc n) x≤n (≤+ 0 1 n (z≤n 1)) , isPrimeX)))))
 
-
-primeList : (n : Nat) -> Σ (List Nat) (λ l -> (x : Nat)  -> ((((x ≤ n) × (isPrime x)) -> (isIn Nat x l)) × ((isIn Nat x l) -> ((x ≤ n) × (isPrime x)))))
-primeList 0 = ([] , λ x -> (
-                           (λ x≤nisPrimeX -> let
-                                             x≤n      = fst x≤nisPrimeX
-                                             isPrimeX = snd x≤nisPrimeX
-                                             in
-                                             absurd $ cases (natDec x 0)
-                                                (λ x=0 -> 0isNotPrime $ replace x=0 (λ y -> isPrime y) isPrimeX)
-                                                (λ x!=0 -> notInNil x $ notHeadThenInRest x 0 (aInRangeB x 0 x≤n , x!=0))) ,
-                           (λ XIsIn -> absurd $ notInNil x XIsIn)))
-primeList (suc n) = let primeListN = primeList n in cases (primeDec (suc n))
-                                                          (λ isPrimeSn -> (((suc n) :: car primeListN)  ,
-                                                                          (λ x ->
-                                                                             ((λ x≤Sn&isPrimeX -> let
-                                                                             x≤Sn      = fst x≤Sn&isPrimeX
-                                                                             isPrimeX  = snd x≤Sn&isPrimeX
-                                                                             in
-                                                                             cases (natDec x (suc n))
-                                                                                   (λ x=Sn  ->  replace
-                                                                                                (sym x=Sn)
-                                                                                                (λ y -> isIn Nat y ((suc n) :: car primeListN))
-                                                                                                ([] , (car primeListN , (concatNil ((suc n) :: car primeListN)))))
-                                                                                   (λ x!=Sn -> let
-                                                                                               isInPrimeListN = (fst $ cdr primeListN x) ((a≤Sb&a!=Sb=>a≤b x n x≤Sn x!=Sn) , isPrimeX)
-                                                                                               crInList       = car isInPrimeListN
-                                                                                               cdInList       = cdr isInPrimeListN
-                                                                                               crcdInList     = car cdInList
-                                                                                               cdcdInList     = cdr cdInList
-                                                                                               in
-                                                                                               ((suc n :: crInList) , (crcdInList , cong (λ x -> ((suc n) :: x)) cdcdInList)))) ,
-                                                                             (λ isInList ->
-                                                                             cases (natDec x (suc n))
-                                                                             (λ x=Sn -> replace (sym x=Sn) (λ y -> y ≤ (suc n)) (≤+ 0 0 (suc n) (z≤n 0)) ,
-                                                                                        replace (sym x=Sn) (λ y -> isPrime y) isPrimeSn)
-                                                                             (λ x!=Sn -> let
-                                                                                         isInprimeListN = notHeadThenInRest x (suc n) (isInList , x!=Sn)
-                                                                                         x≤n&isPrimeX = (snd $ cdr primeListN x) isInprimeListN
-                                                                                         x≤n          = fst x≤n&isPrimeX
-                                                                                         isPrimeX     = snd x≤n&isPrimeX
-                                                                                         in
-                                                                                         (≤Trans x n (suc n) x≤n (≤+ 0 1 n (z≤n 1)) , isPrimeX)))))))
-                                                          (λ isNotPrimeSn -> (car primeListN ,
-                                                                             (λ x ->
-                                                                             (λ x≤Sn&isPrimeX -> let
-                                                                                                 x≤Sn     = fst x≤Sn&isPrimeX
-                                                                                                 isPrimeX = snd x≤Sn&isPrimeX
-                                                                                                 in
-                                                                                                 cases (natDec x (suc n))
-                                                                                                 (λ x=Sn  -> absurd (isNotPrimeSn $ replace x=Sn (λ y -> isPrime y) isPrimeX))
-                                                                                                 (λ x!=Sn -> (fst $ cdr primeListN x) ((a≤Sb&a!=Sb=>a≤b x n x≤Sn x!=Sn) , isPrimeX))) ,
-                                                                             (λ isInList ->      let
-                                                                                                 x≤n&isPrimeX = (snd $ cdr primeListN x) isInList
-                                                                                                 x≤n          = fst x≤n&isPrimeX
-                                                                                                 isPrimeX     = snd x≤n&isPrimeX
-                                                                                                 in
-                                                                                                 (≤Trans x n (suc n) x≤n (≤+ 0 1 n (z≤n 1)) , isPrimeX)))))
-
+-- Fundamental theorem of algebra
 ftaHelper : (n p : Nat) -> Either (Fin (λ x -> Either (+2 x ≡ +2 n) ((+2 x) div (+2 n) -> ⊥)) (suc p)) (Σ Nat (λ x -> isPrime (+2 x) × ((+2 x) div (+2 n))))
 ftaHelper m 0 = cases (divDec 2 (+2 m))
                       (λ 2|n -> right (0 , (2IsPrime , 2|n)))
@@ -230,6 +217,9 @@ productLemma list [] en p eq =  let
                                 in
                                 trans 1*ped=ped  p*ed=list
 productLemma (l :: ls) (b :: be) en p refl =  trans (sym $ assoc* l (product be) (p * product en)) (cong (λ x -> b * x) $ productLemma ls be en p refl)
+
+-- Infinitely many primes
+
 
 infinitePrimes : (n : Nat) -> Σ Nat (λ x -> (n ≤ x) × isPrime x)
 infinitePrimes  0             = (2 , ((z≤n 2) , 2IsPrime))
