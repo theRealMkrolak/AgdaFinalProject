@@ -17,10 +17,6 @@ sucNot0 n ()
 +2 : Nat → Nat
 +2 = suc ∘ suc
 
-sub1 : Nat → Nat
-sub1 0 = 0
-sub1 (suc n) = n
-
 +1= : (b : Nat) → suc b ≡ (b + 1)
 +1= 0       = refl
 +1= (suc b) = sym
@@ -350,6 +346,28 @@ a≤Sb&a!=Sb=>a≤b (suc a) 0 Sa≤1 Sa!=1 = absurd $ Sa!=1 (≤and≥then= (suc
 a≤Sb&a!=Sb=>a≤b (suc a) (suc b) (s≤s a (suc b) a≤Sb) Sa!=SSb = a≤b->Sa≤Sb a b (a≤Sb&a!=Sb=>a≤b a b a≤Sb a!=Sb)
   where
     a!=Sb = λ a=Sb → Sa!=SSb (cong suc a=Sb)
+
+!0≥1 : (n : Nat) → (n ≡ 0 → ⊥) → 1 ≤ n
+!0≥1 0 n!=0 = absurd $ n!=0 refl
+!0≥1 (suc n) Sn!=0 = s≤s 0 n (z≤n n)
+
+≥1!0 : (n : Nat) → 1 ≤ n → n ≡ 0 → ⊥
+≥1!0 0 1≤n n=0 = 1not≤0 1≤n
+≥1!0 (suc n) 1≤Sn Sn=0 = sucNot0 n Sn=0
+
+a*b!=0 : (a b : Nat) → (a ≡ 0 → ⊥) × (b ≡ 0 → ⊥) → a * b ≡ 0 → ⊥
+a*b!=0 0 b (a!=0 , b!=0) = absurd $ a!=0 refl
+a*b!=0 (suc a) b (Sa!=0 , b!=0) Sa*b=0 = cases (natDec a 0)
+                                         (λ a=0 → b!=0 $ sym (trans (sym Sa*b=0) (cong (λ k → (suc k) * b) a=0)))
+                                         (λ a!=0 → let
+                                                   a*b = a * b
+                                                   1≤a*b = !0≥1 a*b (a*b!=0 a b (a!=0 , b!=0))
+                                                   Sa*b = (suc a) * b
+                                                   a*b≤Sa*b = ≤Switch (0 + a*b) a*b (b + a*b) Sa*b
+                                                              (trans (comm+ 0 a*b) (sym (+0= a*b)))
+                                                              (suc-help a b) (≤+ 0 b a*b (z≤n b))
+                                                   1≤Sa*b = ≤Trans 1 a*b Sa*b 1≤a*b a*b≤Sa*b
+                                                   in (≥1!0 Sa*b 1≤Sa*b) Sa*b=0)
 
 -- Monus
 c-c=0 : (c : Nat) → (c - c) ≡ 0

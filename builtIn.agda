@@ -145,10 +145,6 @@ finMap : {A B : Nat → Set} {n : Nat} → ({m : Nat} → A m → B m) → Fin A
 finMap f (body An finN-1) = body (f An) (finMap f finN-1)
 finMap f stop = stop
 
--- Decidability
-dec= : (A : Set) → Set
-dec= A = (a b : A) → Either (a ≡ b) (a ≡ b → ⊥)
-
 -- Miscellaneous
 id : {A : Set} → A → A
 id x = x
@@ -162,3 +158,17 @@ a $ b = a b
 _∘_ : {A B C : Set} → (B → C) → (A → B) → (A → C)
 f ∘ g = λ x → f (g x)
 infixr 8 _∘_
+
+-- Decidability
+dec= : (A : Set) → Set
+dec= A = (a b : A) → Either (a ≡ b) (a ≡ b → ⊥)
+
+sub1 : Nat → Nat
+sub1 0 = 0
+sub1 (suc n) = n
+
+natDec : (a b : Nat) → Either (a ≡ b) (a ≡ b → ⊥)
+natDec 0       0       = left refl
+natDec 0       (suc b) = right $ 0!=Sn b
+natDec (suc a) 0       = right $ Sn!=0 a
+natDec (suc a) (suc b) = cases (natDec a b) (left ∘ cong suc) (λ a!=b → right $ λ Sa=Sb → a!=b $ cong sub1 Sa=Sb)

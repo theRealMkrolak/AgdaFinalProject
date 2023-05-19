@@ -8,12 +8,6 @@ isPrime : Nat → Set
 isPrime 1 = ⊥
 isPrime n = (x : Nat) → (x ≡ n → ⊥) × (x div n) → x ≡ 1
 
-natDec : (a b : Nat) → Either (a ≡ b) (a ≡ b → ⊥)
-natDec 0       0       = left refl
-natDec 0       (suc b) = right $ 0!=Sn b
-natDec (suc a) 0       = right $ Sn!=0 a
-natDec (suc a) (suc b) = cases (natDec a b) (left ∘ cong suc) (λ a!=b → right $ λ Sa=Sb → a!=b $ cong sub1 Sa=Sb)
-
 -- Very powerful function! Essentially, can't have something is in a range 0-m AND evidence that it's not equal to each 0-m
 indIsNotInRange : (n m : Nat) → isIn Nat n (range m) × Fin (λ x → n ≡ x → ⊥) (suc m) → ⊥
 indIsNotInRange n 0       (nIsIn0 , body n!=0 end)  = n!=0 $ singletonIsItself n 0 natDec nIsIn0
@@ -94,7 +88,6 @@ only1Divides=>isPrimeHelper p x (suc n) (x!=p , x|p) isInRangeN (body (right not
                                                                                             (λ x!=n → only1Divides=>isPrimeHelper p x n (x!=p , x|p)
                                                                                               (notHeadThenInRest x (+2 (suc n)) (isInRangeN , x!=n)) fin)
 
-
 only1Divides=>isPrime : (p : Nat) → Fin (λ x → Either (+2 x ≡ +2 p) ((+2 x) div (+2 p) → ⊥)) (suc p) → isPrime (+2 p)
 only1Divides=>isPrime p fin x (x!=p , x|p) = cases (≤Dec x (+2 p))
                                              (λ x≤p → only1Divides=>isPrimeHelper p x p (x!=p , x|p) (aInRangeB x (+2 p) x≤p) fin)
@@ -158,75 +151,53 @@ primeList (suc n) = let primeListN = primeList n
                                                                                 in (≤Trans x n (suc n) x≤n (≤+ 0 1 n (z≤n 1)) , isPrimeX)))))
 
 -- Fundamental theorem of algebra
-ftaHelper : (n p : Nat) -> Either (Fin (λ x -> Either (+2 x ≡ +2 n) ((+2 x) div (+2 n) -> ⊥)) (suc p)) (Σ Nat (λ x -> isPrime (+2 x) × ((+2 x) div (+2 n))))
+ftaHelper : (n p : Nat) → Either (Fin (λ x → Either (+2 x ≡ +2 n) ((+2 x) div (+2 n) → ⊥)) (suc p)) (Σ Nat (λ x → isPrime (+2 x) × ((+2 x) div (+2 n))))
 ftaHelper m 0 = cases (divDec 2 (+2 m))
-                      (λ 2|n -> right (0 , (2IsPrime , 2|n)))
-                      (λ not2|n -> left $ body (right not2|n) (stop))
+                      (λ 2|n → right (0 , (2IsPrime , 2|n)))
+                      (λ not2|n → left $ body (right not2|n) (stop))
 ftaHelper m (suc q) = let p = (+2 $ suc q)
                           n = (+2 m)
                       in
                       cases (natDec p n)
-                      (λ p=n ->  cases (ftaHelper m q)
-                                 (λ fin -> left (body (left p=n) fin))
+                      (λ p=n →  cases (ftaHelper m q)
+                                 (λ fin → left (body (left p=n) fin))
                                  right)
-                      (λ p!=n -> cases (divDec p n)
-                                 (λ p|n -> cases (primeDec p)
-                                           (λ isPrimep -> right ((suc q) , (isPrimep , p|n)))
-                                           (λ isNotPrime -> cases (ftaHelper (suc q) q)
-                                                            (λ fin -> right (suc q , (only1Divides=>isPrime (suc q) (body (left refl) fin) , p|n)))
-                                                            (λ x&isPrimeX&x|p -> let
+                      (λ p!=n → cases (divDec p n)
+                                 (λ p|n → cases (primeDec p)
+                                           (λ isPrimep → right ((suc q) , (isPrimep , p|n)))
+                                           (λ isNotPrime → cases (ftaHelper (suc q) q)
+                                                            (λ fin → right (suc q , (only1Divides=>isPrime (suc q) (body (left refl) fin) , p|n)))
+                                                            (λ x&isPrimeX&x|p → let
                                                                                  x        = car x&isPrimeX&x|p
                                                                                  back     = cdr x&isPrimeX&x|p
                                                                                  isPrimeX = fst back
                                                                                  x|p      = snd back
                                                                                  in
                                                                                    right (x , (isPrimeX , (divTrans (suc (suc x)) p n x|p p|n))))))
-                                 (λ notP|n -> cases (ftaHelper m q)
-                                              (λ fin ->  left (body (right notP|n) fin))
+                                 (λ notP|n → cases (ftaHelper m q)
+                                              (λ fin → left (body (right notP|n) fin))
                                               right))
 
 
-fta : (n : Nat) -> (Σ (Nat) (λ p -> (isPrime p) × (p div (+2 n))))
-fta n = cases (ftaHelper n n) (λ fin -> ((+2 n) , (only1Divides=>isPrime n fin , (1 , (sym $ *1= (+2 n)))))) (λ x -> ((+2 $ car x) , cdr x))
+fta : (n : Nat) → (Σ (Nat) (λ p → (isPrime p) × (p div (+2 n))))
+fta n = cases (ftaHelper n n) (λ fin → ((+2 n) , (only1Divides=>isPrime n fin , (1 , (sym $ *1= (+2 n)))))) (λ x → ((+2 $ car x) , cdr x))
 
-realFta : (n : Nat) -> (n ≡ 1 -> ⊥) -> (Σ (Nat) (λ p -> (isPrime p) × (p div n)))
+realFta : (n : Nat) → (n ≡ 1 → ⊥) → (Σ (Nat) (λ p → (isPrime p) × (p div n)))
 realFta 0             neq1 = (2 , (2IsPrime , AllDivide0 2))
 realFta 1             neq1 = absurd $ neq1 refl
 realFta (suc (suc n)) neq1 = fta n
 
-product : List Nat -> Nat
+product : List Nat → Nat
 product [] = 1
 product (l :: ls) = l * (product ls)
 
-productLemma : (list be en : List Nat) -> (p :  Nat) -> (concat be (p :: en) ≡ list) -> ((product be) * (p * (product en)) ≡ product list)
+productLemma : (list be en : List Nat) → (p :  Nat) → (concat be (p :: en) ≡ list) → ((product be) * (p * (product en)) ≡ product list)
 productLemma list [] en p eq =  let
                                 p*ed=list = cong product (trans (concatNil (p :: en)) eq)
                                 1*ped=ped = trans (comm* 1 (p * (product en))) (sym $ *1= (p * (product en)))
                                 in
                                 trans 1*ped=ped  p*ed=list
-productLemma (l :: ls) (b :: be) en p refl =  trans (sym $ assoc* l (product be) (p * product en)) (cong (λ x -> b * x) $ productLemma ls be en p refl)
-
-!0≥1 : (n : Nat) → (n ≡ 0 → ⊥) → 1 ≤ n
-!0≥1 0 n!=0 = absurd $ n!=0 refl
-!0≥1 (suc n) Sn!=0 = s≤s 0 n (z≤n n)
-
-≥1!0 : (n : Nat) → 1 ≤ n → n ≡ 0 → ⊥
-≥1!0 0 1≤n n=0 = 1not≤0 1≤n
-≥1!0 (suc n) 1≤Sn Sn=0 = sucNot0 n Sn=0 
-
-a*b!=0 : (a b : Nat) → (a ≡ 0 → ⊥) × (b ≡ 0 → ⊥) → a * b ≡ 0 → ⊥
-a*b!=0 0 b (a!=0 , b!=0) = absurd $ a!=0 refl
-a*b!=0 (suc a) b (Sa!=0 , b!=0) Sa*b=0 = cases (natDec a 0)
-                                         (λ a=0 → b!=0 $ sym (trans (sym Sa*b=0) (cong (λ k → (suc k) * b) a=0)))
-                                         (λ a!=0 → let
-                                                   a*b = a * b
-                                                   1≤a*b = !0≥1 a*b (a*b!=0 a b (a!=0 , b!=0))
-                                                   Sa*b = (suc a) * b
-                                                   a*b≤Sa*b = ≤Switch (0 + a*b) a*b (b + a*b) Sa*b
-                                                              (trans (comm+ 0 a*b) (sym (+0= a*b)))
-                                                              (suc-help a b) (≤+ 0 b a*b (z≤n b))
-                                                   1≤Sa*b = ≤Trans 1 a*b Sa*b 1≤a*b a*b≤Sa*b
-                                                   in (≥1!0 Sa*b 1≤Sa*b) Sa*b=0)
+productLemma (l :: ls) (b :: be) en p refl =  trans (sym $ assoc* l (product be) (p * product en)) (cong (b *_) $ productLemma ls be en p refl)
 
 prodList!=0 : (list : List Nat) → ((x : Nat) → (isIn Nat x list) → x ≡ 0 → ⊥) → product list ≡ 0 → ⊥
 prodList!=0 [] _ = 1not0
@@ -247,7 +218,7 @@ infinitePrimesLemma : (n : Nat) → product (car (primeList n)) ≡ 0 → ⊥
 infinitePrimesLemma n = let list = car (primeList n) in
                         prodList!=0 list (λ x isInList → primeNot0 x (snd ((snd ((cdr (primeList n)) x)) isInList)))
 
-infinitePrimes : (n : Nat) -> Σ Nat (λ x -> (n ≤ x) × isPrime x)
+infinitePrimes : (n : Nat) → Σ Nat (λ x → (n ≤ x) × isPrime x)
 infinitePrimes  0             = (2 , ((z≤n 2) , 2IsPrime))
 infinitePrimes  1             = (2 , ((s≤s 0 1 $ z≤n 1) , 2IsPrime))
 infinitePrimes (suc (suc n)) = let
@@ -263,7 +234,7 @@ infinitePrimes (suc (suc n)) = let
                        p|n       = snd $ evidence
                        in
                        cases (≤Dec prime (suc (suc n)))
-                             (λ p≤n -> let
+                             (λ p≤n →  let
                                        pInList  = (fst $ listEv prime) (p≤n , fst evidence)
                                        pInEvd   = (cdr (cdr pInList))
                                        be       = product (car pInList)
@@ -278,10 +249,10 @@ infinitePrimes (suc (suc n)) = let
                                        bac=bac  : (be * prime) * en ≡ listProd
                                        bac=bac  = (trans (sym $ assoc* be prime en) abc=list) 
                                        abc=list : (prime * (be * en) ≡ listProd)
-                                       abc=list = trans (assoc* prime be en) $ trans (cong (λ x -> x * en) $ abe=bea) bac=bac
+                                       abc=list = trans (assoc* prime be en) $ trans (cong (_* en) $ abe=bea) bac=bac
                                        1+ac=1+l : (1 + (prime * c) ≡ 1 + listProd)
                                        1+ac=1+l = cong
-                                                  (λ x -> 1 + x) abc=list
+                                                  (1 +_) abc=list
                                        1+ac=ab  : (1 + (prime * c) ≡ (prime * b))
                                        1+ac=ab  = trans
                                                   1+ac=1+l
@@ -289,10 +260,10 @@ infinitePrimes (suc (suc n)) = let
                                        1=ab-ac  : (1 ≡ (prime * b) - ac)
                                        1=ab-ac  = trans
                                                  (sym $ a+c-c=a 1 ac)
-                                                 (cong (λ x -> x - ac) 1+ac=ab)
+                                                 (cong (_- ac) 1+ac=ab)
                                        in
                                        absurd (1isNotPrime $ replace
                                                              (aDiv1=>a=1 prime ((b - c) , (sym $ trans 1=ab-ac (a*c-a*b=a*c-b prime c b))))
-                                                             (λ x -> isPrime x)
+                                                             (λ x → isPrime x)
                                                              (fst evidence)))
-                             (λ n≤p -> (prime , (n≤p , fst evidence)))
+                             (λ n≤p → (prime , (n≤p , fst evidence)))
