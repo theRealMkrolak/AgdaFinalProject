@@ -1,2 +1,3 @@
 # AgdaFinalProject
-Final Project for some class in college
+
+A proof for infinite primes in agda
